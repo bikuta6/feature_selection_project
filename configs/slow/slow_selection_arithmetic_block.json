@@ -1,0 +1,42 @@
+{
+  "secondary_objective": "sparsity",
+  "population_size": 300,
+  "generations": 50,
+  "crossover_prob": 0.9,
+  "mutation_prob": 0.008,
+  "crossover_type": "arithmetic",
+  "mutation_type": "block",
+  "objective_weights": null,
+  "metric": "mae",
+  "normalize": false,
+  "uniform_swap_prob": 0.5,
+  "arithmetic_alpha": 0.7,
+  "block_size": 5,
+  "adaptive_min_prob": 0.01,
+  "adaptive_max_prob": 0.1,
+  "_comment": "Slow configuration with arithmetic crossover and block mutation",
+  "_comment_profile": "Thorough exploration with sophisticated blending - arithmetic crossover explores intermediate solutions through weighted combinations while block mutation investigates correlated feature groups",
+  "_comment_crossover_types": "Available crossover types: 'single_point', 'two_point', 'uniform', 'arithmetic'",
+  "_comment_mutation_types": "Available mutation types: 'random_bit_flip', 'uniform', 'block', 'adaptive'",
+  "_comment_crossover_descriptions": {
+    "arithmetic": "Arithmetic crossover - arithmetic combination using alpha parameter"
+  },
+  "_comment_mutation_descriptions": {
+    "block": "Contiguous block of bits flipped together (size controlled by block_size)"
+  },
+  "_comment_parameters": {
+    "uniform_swap_prob": "Used with uniform crossover - probability of swapping each gene",
+    "arithmetic_alpha": "Used with arithmetic crossover - weight factor (0 < alpha < 1) - set to 0.7 for asymmetric blending favoring first parent",
+    "block_size": "Used with block mutation - size of contiguous block to mutate (increased to 5 for exploring larger feature groups)",
+    "adaptive_min_prob": "Used with adaptive mutation - minimum mutation probability",
+    "adaptive_max_prob": "Used with adaptive mutation - maximum mutation probability"
+  },
+  "_comment_performance_notes": {
+    "population_size": "Large population for extensive exploration and diversity maintenance",
+    "generations": "Many generations for thorough convergence and fine-tuning",
+    "crossover_prob": "Very high crossover probability to maximize arithmetic blending benefits",
+    "mutation_prob": "Very low base mutation rate to complement larger block sizes",
+    "block_exploration": "Large block size of 5 allows deep exploration of feature dependencies and correlations",
+    "arithmetic_focus": "Asymmetric alpha (0.7) creates biased blending that preserves good parent characteristics while exploring variations"
+  }
+}

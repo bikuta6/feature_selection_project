@@ -1,0 +1,40 @@
+{
+  "secondary_objective": "sparsity",
+  "population_size": 50,
+  "generations": 25,
+  "crossover_prob": 0.8,
+  "mutation_prob": 0.02,
+  "crossover_type": "two_point",
+  "mutation_type": "adaptive",
+  "objective_weights": null,
+  "metric": "mae",
+  "normalize": false,
+  "uniform_swap_prob": 0.5,
+  "arithmetic_alpha": 0.5,
+  "block_size": 3,
+  "adaptive_min_prob": 0.015,
+  "adaptive_max_prob": 0.06,
+  "_comment": "Quick configuration with two-point crossover and adaptive mutation",
+  "_comment_profile": "Fast execution with intelligent adaptation - two-point crossover preserves feature groups while adaptive mutation self-regulates based on selection patterns",
+  "_comment_crossover_types": "Available crossover types: 'single_point', 'two_point', 'uniform', 'arithmetic'",
+  "_comment_mutation_types": "Available mutation types: 'random_bit_flip', 'uniform', 'block', 'adaptive'",
+  "_comment_crossover_descriptions": {
+    "two_point": "Two-point crossover - exchanges middle segment between two points"
+  },
+  "_comment_mutation_descriptions": {
+    "adaptive": "Mutation rate adapts based on current feature selection ratio"
+  },
+  "_comment_parameters": {
+    "uniform_swap_prob": "Used with uniform crossover - probability of swapping each gene",
+    "arithmetic_alpha": "Used with arithmetic crossover - weight factor (0 < alpha < 1)",
+    "block_size": "Used with block mutation - size of contiguous block to mutate",
+    "adaptive_min_prob": "Used with adaptive mutation - minimum mutation probability (higher for quick exploration)",
+    "adaptive_max_prob": "Used with adaptive mutation - maximum mutation probability (reduced for quick convergence)"
+  },
+  "_comment_performance_notes": {
+    "population_size": "Small population for faster execution",
+    "generations": "Limited generations for time constraints",
+    "crossover_focus": "Two-point crossover maintains feature group structure while allowing efficient recombination",
+    "adaptive_range": "Narrower adaptive range (0.015-0.06) optimized for quick runs with effective adaptation"
+  }
+}

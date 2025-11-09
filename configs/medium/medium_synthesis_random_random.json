@@ -1,0 +1,33 @@
+{
+  "population_size": 150,
+  "max_generations": 75,
+  "crossover_prob": 0.8,
+  "mutation_prob": 0.12,
+  "tournament_size": 4,
+  "max_depth": 6,
+  "elitism": true,
+  "n_features_to_create": 1,
+  "use_multi_feature": false,
+  "crossover_type": "random",
+  "mutation_type": "random",
+  "use_multiprocessing": false,
+  "n_jobs": 1,
+  "_comment": "Medium configuration with random crossover and random mutation",
+  "_comment_profile": "Balanced execution with high exploration - random crossover creates novel combinations while random mutation adaptively selects different mutation strategies",
+  "_comment_crossover_types": "Available crossover types: 'subtree', 'random', 'point'",
+  "_comment_mutation_types": "Available mutation types: 'subtree', 'node', 'random', 'parameter', 'grow'",
+  "_comment_crossover_descriptions": {
+    "random": "Creates new random subtrees at crossover points instead of exchanging existing ones"
+  },
+  "_comment_mutation_descriptions": {
+    "random": "Randomly selects between different mutation types (subtree, node, constant, or function mutation)"
+  },
+  "_comment_performance_notes": {
+    "max_depth": "Standard depth of 6 for medium complexity expressions",
+    "population_size": "Medium population for balanced exploration vs computation time",
+    "max_generations": "Moderate generations allowing thorough search without excessive runtime",
+    "tournament_size": "Increased to 4 for better selection pressure with higher exploration",
+    "mutation_prob": "Higher mutation rate to complement random mutation strategy",
+    "exploration_focus": "Both operators maximize exploration and diversity in feature synthesis"
+  }
+}

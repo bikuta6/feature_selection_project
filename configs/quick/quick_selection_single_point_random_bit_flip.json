@@ -1,0 +1,34 @@
+{
+  "secondary_objective": "sparsity",
+  "population_size": 50,
+  "generations": 25,
+  "crossover_prob": 0.8,
+  "mutation_prob": 0.02,
+  "crossover_type": "single_point",
+  "mutation_type": "random_bit_flip",
+  "objective_weights": null,
+  "metric": "mae",
+  "normalize": false,
+  "uniform_swap_prob": 0.5,
+  "arithmetic_alpha": 0.5,
+  "block_size": 3,
+  "adaptive_min_prob": 0.01,
+  "adaptive_max_prob": 0.1,
+  "_comment": "Quick configuration with single-point crossover and random bit flip mutation",
+  "_comment_profile": "Fast execution with simple operators - good for initial exploration or time-constrained scenarios",
+  "_comment_crossover_types": "Available crossover types: 'single_point', 'two_point', 'uniform', 'arithmetic'",
+  "_comment_mutation_types": "Available mutation types: 'random_bit_flip', 'uniform', 'block', 'adaptive'",
+  "_comment_crossover_descriptions": {
+    "single_point": "Single-point crossover - crosses over at one randomly selected point"
+  },
+  "_comment_mutation_descriptions": {
+    "random_bit_flip": "Each bit flipped independently with mutation probability"
+  },
+  "_comment_parameters": {
+    "uniform_swap_prob": "Used with uniform crossover - probability of swapping each gene",
+    "arithmetic_alpha": "Used with arithmetic crossover - weight factor (0 < alpha < 1)",
+    "block_size": "Used with block mutation - size of contiguous block to mutate",
+    "adaptive_min_prob": "Used with adaptive mutation - minimum mutation probability",
+    "adaptive_max_prob": "Used with adaptive mutation - maximum mutation probability"
+  }
+}

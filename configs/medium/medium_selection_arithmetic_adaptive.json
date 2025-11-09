@@ -1,0 +1,40 @@
+{
+  "secondary_objective": "sparsity",
+  "population_size": 150,
+  "generations": 75,
+  "crossover_prob": 0.85,
+  "mutation_prob": 0.015,
+  "crossover_type": "arithmetic",
+  "mutation_type": "adaptive",
+  "objective_weights": null,
+  "metric": "mae",
+  "normalize": false,
+  "uniform_swap_prob": 0.5,
+  "arithmetic_alpha": 0.6,
+  "block_size": 3,
+  "adaptive_min_prob": 0.008,
+  "adaptive_max_prob": 0.08,
+  "_comment": "Medium configuration with arithmetic crossover and adaptive mutation",
+  "_comment_profile": "Balanced execution with sophisticated exploration - arithmetic crossover explores intermediate solutions while adaptive mutation self-regulates based on feature selection ratio",
+  "_comment_crossover_types": "Available crossover types: 'single_point', 'two_point', 'uniform', 'arithmetic'",
+  "_comment_mutation_types": "Available mutation types: 'random_bit_flip', 'uniform', 'block', 'adaptive'",
+  "_comment_crossover_descriptions": {
+    "arithmetic": "Arithmetic crossover - arithmetic combination using alpha parameter"
+  },
+  "_comment_mutation_descriptions": {
+    "adaptive": "Mutation rate adapts based on current feature selection ratio"
+  },
+  "_comment_parameters": {
+    "uniform_swap_prob": "Used with uniform crossover - probability of swapping each gene",
+    "arithmetic_alpha": "Used with arithmetic crossover - weight factor (0 < alpha < 1) - set to 0.6 for medium exploration",
+    "block_size": "Used with block mutation - size of contiguous block to mutate",
+    "adaptive_min_prob": "Used with adaptive mutation - minimum mutation probability (reduced for medium pace)",
+    "adaptive_max_prob": "Used with adaptive mutation - maximum mutation probability (balanced for medium exploration)"
+  },
+  "_comment_performance_notes": {
+    "population_size": "Medium population for balanced exploration vs computation time",
+    "generations": "Moderate generations allowing thorough search without excessive runtime",
+    "crossover_prob": "Higher crossover probability to leverage arithmetic blending",
+    "mutation_prob": "Conservative base mutation rate, adaptive mechanism will adjust as needed"
+  }
+}

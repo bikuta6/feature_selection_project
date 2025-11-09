@@ -1,0 +1,41 @@
+{
+  "secondary_objective": "sparsity",
+  "population_size": 300,
+  "generations": 50,
+  "crossover_prob": 0.9,
+  "mutation_prob": 0.01,
+  "crossover_type": "uniform",
+  "mutation_type": "adaptive",
+  "objective_weights": null,
+  "metric": "mae",
+  "normalize": false,
+  "uniform_swap_prob": 0.5,
+  "arithmetic_alpha": 0.5,
+  "block_size": 3,
+  "adaptive_min_prob": 0.005,
+  "adaptive_max_prob": 0.12,
+  "_comment": "Slow configuration with uniform crossover and adaptive mutation",
+  "_comment_profile": "Thorough exploration with sophisticated operators - uniform crossover provides extensive mixing while adaptive mutation intelligently adjusts based on population diversity",
+  "_comment_crossover_types": "Available crossover types: 'single_point', 'two_point', 'uniform', 'arithmetic'",
+  "_comment_mutation_types": "Available mutation types: 'random_bit_flip', 'uniform', 'block', 'adaptive'",
+  "_comment_crossover_descriptions": {
+    "uniform": "Uniform crossover - each gene swapped independently with swap_probability"
+  },
+  "_comment_mutation_descriptions": {
+    "adaptive": "Mutation rate adapts based on current feature selection ratio"
+  },
+  "_comment_parameters": {
+    "uniform_swap_prob": "Used with uniform crossover - probability of swapping each gene (balanced at 0.5 for thorough exploration)",
+    "arithmetic_alpha": "Used with arithmetic crossover - weight factor (0 < alpha < 1)",
+    "block_size": "Used with block mutation - size of contiguous block to mutate",
+    "adaptive_min_prob": "Used with adaptive mutation - minimum mutation probability (very low for fine-tuning)",
+    "adaptive_max_prob": "Used with adaptive mutation - maximum mutation probability (high for diversity when needed)"
+  },
+  "_comment_performance_notes": {
+    "population_size": "Large population for extensive exploration and diversity maintenance",
+    "generations": "Many generations for thorough convergence and fine-tuning",
+    "crossover_prob": "Very high crossover probability to maximize uniform mixing benefits",
+    "mutation_prob": "Low base mutation rate, adaptive mechanism provides intelligent adjustment",
+    "exploration_depth": "Configuration designed for comprehensive search with intelligent adaptation"
+  }
+}

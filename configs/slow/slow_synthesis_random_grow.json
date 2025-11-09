@@ -1,0 +1,34 @@
+{
+  "population_size": 100,
+  "max_generations": 50,
+  "crossover_prob": 0.85,
+  "mutation_prob": 0.08,
+  "tournament_size": 5,
+  "max_depth": 30,
+  "elitism": true,
+  "n_features_to_create": 5,
+  "use_multi_feature": true,
+  "crossover_type": "random",
+  "mutation_type": "grow",
+  "use_multiprocessing": false,
+  "n_jobs": 1,
+  "_comment": "Slow configuration with random crossover and grow mutation",
+  "_comment_profile": "Thorough exploration with complexity-building operators - random crossover creates novel combinations while grow mutation increases expression complexity over time",
+  "_comment_crossover_types": "Available crossover types: 'subtree', 'random', 'point'",
+  "_comment_mutation_types": "Available mutation types: 'subtree', 'node', 'random', 'parameter', 'grow'",
+  "_comment_crossover_descriptions": {
+    "random": "Creates new random subtrees at crossover points instead of exchanging existing ones"
+  },
+  "_comment_mutation_descriptions": {
+    "grow": "Extends terminal nodes into more complex subtrees to increase tree complexity"
+  },
+  "_comment_performance_notes": {
+    "max_depth": "Increased to 8 for complex expression evolution",
+    "population_size": "Large population for extensive exploration and diversity maintenance",
+    "max_generations": "Many generations for thorough convergence and complexity development",
+    "tournament_size": "Increased to 5 for stronger selection pressure with high exploration",
+    "mutation_prob": "Moderate mutation rate to balance grow operations with stability",
+    "complexity_focus": "Configuration designed to evolve increasingly sophisticated feature expressions",
+    "exploration_depth": "Random crossover maximizes novelty while grow mutation builds complexity progressively"
+  }
+}

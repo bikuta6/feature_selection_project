@@ -1,0 +1,34 @@
+{
+  "population_size": 100,
+  "max_generations": 50,
+  "crossover_prob": 0.85,
+  "mutation_prob": 0.1,
+  "tournament_size": 5,
+  "max_depth": 30,
+  "elitism": true,
+  "n_features_to_create": 5,
+  "use_multi_feature": true,
+  "crossover_type": "subtree",
+  "mutation_type": "random",
+  "use_multiprocessing": false,
+  "n_jobs": 1,
+  "_comment": "Slow configuration with subtree crossover and random mutation",
+  "_comment_profile": "Thorough exploration with balanced operators - subtree crossover maintains structural integrity while random mutation adaptively selects optimal mutation strategies for diverse exploration",
+  "_comment_crossover_types": "Available crossover types: 'subtree', 'random', 'point'",
+  "_comment_mutation_types": "Available mutation types: 'subtree', 'node', 'random', 'parameter', 'grow'",
+  "_comment_crossover_descriptions": {
+    "subtree": "Standard GP subtree crossover - exchanges subtrees between parents"
+  },
+  "_comment_mutation_descriptions": {
+    "random": "Randomly selects between different mutation types (subtree, node, constant, or function mutation)"
+  },
+  "_comment_performance_notes": {
+    "max_depth": "Increased to 8 for complex expression evolution",
+    "population_size": "Large population for extensive exploration and diversity maintenance",
+    "max_generations": "Many generations for thorough convergence and optimization",
+    "tournament_size": "Increased to 5 for stronger selection pressure with high exploration",
+    "mutation_prob": "Higher mutation rate to leverage random mutation strategy diversity",
+    "balanced_approach": "Subtree crossover provides structural recombination while random mutation ensures adaptive exploration",
+    "exploration_depth": "Configuration designed for comprehensive search with intelligent mutation adaptation"
+  }
+}

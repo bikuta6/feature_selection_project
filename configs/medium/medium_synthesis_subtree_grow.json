@@ -1,0 +1,37 @@
+{
+  "population_size": 150,
+  "max_generations": 75,
+  "crossover_prob": 0.8,
+  "mutation_prob": 0.1,
+  "tournament_size": 4,
+  "max_depth": 6,
+  "elitism": true,
+  "n_features_to_create": 3,
+  "use_multi_feature": true,
+  "crossover_type": "subtree",
+  "mutation_type": "grow",
+  "use_multiprocessing": false,
+  "n_jobs": 1,
+  "_comment": "Medium configuration with subtree crossover and grow mutation",
+  "_comment_profile": "Balanced execution with complexity-building approach - subtree crossover maintains structural integrity while grow mutation progressively increases expression sophistication",
+  "_comment_crossover_types": "Available crossover types: 'subtree', 'random', 'point'",
+  "_comment_mutation_types": "Available mutation types: 'subtree', 'node', 'random', 'parameter', 'grow'",
+  "_comment_crossover_descriptions": {
+    "subtree": "Standard GP subtree crossover - exchanges subtrees between parents"
+  },
+  "_comment_mutation_descriptions": {
+    "grow": "Extends terminal nodes into more complex subtrees to increase tree complexity"
+  },
+  "_comment_parameters": {
+    "max_depth": "Standard depth of 6 allows moderate complexity without excessive computation",
+    "tournament_size": "Balanced selection pressure with tournament size 4",
+    "mutation_prob": "Moderate mutation rate to balance grow operations with stability"
+  },
+  "_comment_performance_notes": {
+    "population_size": "Medium population for balanced exploration vs computation time",
+    "max_generations": "Moderate generations allowing thorough search without excessive runtime",
+    "crossover_focus": "Subtree crossover provides effective recombination while preserving good building blocks",
+    "growth_strategy": "Grow mutation gradually increases complexity, building sophisticated features over generations",
+    "balance": "Configuration balances structural preservation with progressive complexity enhancement"
+  }
+}
