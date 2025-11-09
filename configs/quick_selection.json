@@ -1,0 +1,13 @@
+{
+  "_description": "Quick feature selection configuration for fast results",
+  "secondary_objective": "sparsity",
+  "population_size": 50,
+  "generations": 25,
+  "crossover_prob": 0.9,
+  "crossover_type": "two_point",
+  "mutation_type": "random_bit_flip",
+  "mutation_prob": 0.1,
+  "objective_weights": [0.8, 0.2],
+  "metric": "mae",
+  "normalize": false
+}

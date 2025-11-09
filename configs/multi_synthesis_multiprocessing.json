@@ -1,0 +1,35 @@
+{
+    "population_size": 80,
+    "max_generations": 40,
+    "crossover_prob": 0.8,
+    "mutation_prob": 0.1,
+    "tournament_size": 3,
+    "max_depth": 5,
+    "elitism": true,
+    "use_multi_feature": true,
+    "n_features_to_create": 3,
+    "cv": 3,
+    "use_multiprocessing": true,
+    "n_jobs": 4,
+    "_comment": "Configuration for multi-feature synthesis with multiprocessing enabled",
+    "_description": {
+        "population_size": "Size of the GA population for each feature evolution (default: 100)",
+        "max_generations": "Maximum number of generations to evolve for each feature (default: 50)",
+        "crossover_prob": "Probability of crossover operation (default: 0.8)",
+        "mutation_prob": "Probability of mutation operation (default: 0.1)",
+        "tournament_size": "Size of tournament for selection (default: 3)",
+        "max_depth": "Maximum depth of GP trees (default: 6)",
+        "elitism": "Whether to use elitism (keep best individual) (default: true)",
+        "use_multi_feature": "Set to true to evolve multiple features sequentially",
+        "n_features_to_create": "Number of features to create sequentially (each adds to the dataset)",
+        "cv": "Number of cross-validation folds for fitness evaluation (default: 3)",
+        "use_multiprocessing": "Enable multiprocessing for fitness calculations (recommended for larger populations)",
+        "n_jobs": "Number of processes to use for multiprocessing (4 is good for most systems, -1 uses all cores)"
+    },
+    "_performance_notes": {
+        "multiprocessing_benefit": "Multiprocessing provides significant speedup for populations > 20",
+        "recommended_n_jobs": "Use 2-8 processes depending on your CPU cores and memory",
+        "memory_usage": "Each process will load the dataset and model, consider memory limits",
+        "optimal_settings": "For multi-feature synthesis, reduce population_size and max_generations per feature since multiple features are evolved"
+    }
+}

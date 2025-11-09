@@ -1,0 +1,14 @@
+{
+  "_description": "Comprehensive synthesis configuration for best results (slower)",
+  "population_size": 20,
+  "max_generations": 50,
+  "crossover_prob": 0.8,
+  "crossover_type": "subtree",
+  "mutation_type": "subtree",
+  "mutation_prob": 0.1,
+  "tournament_size": 3,
+  "max_depth": 50,
+  "elitism": false,
+  "n_features_to_create": 5,
+  "use_multi_feature": true
+}

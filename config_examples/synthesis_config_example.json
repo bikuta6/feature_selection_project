@@ -1,0 +1,29 @@
+{
+  "population_size": 100,
+  "max_generations": 50,
+  "crossover_prob": 0.8,
+  "mutation_prob": 0.1,
+  "tournament_size": 3,
+  "max_depth": 6,
+  "elitism": true,
+  "n_features_to_create": 1,
+  "use_multi_feature": false,
+  "crossover_type": "subtree",
+  "mutation_type": "subtree",
+  "use_multiprocessing": false,
+  "n_jobs": 1,
+  "_comment_crossover_types": "Available crossover types: 'subtree', 'random', 'point'",
+  "_comment_mutation_types": "Available mutation types: 'subtree', 'node', 'random', 'parameter', 'grow'",
+  "_comment_crossover_descriptions": {
+    "subtree": "Standard GP subtree crossover - exchanges subtrees between parents",
+    "random": "Creates new random subtrees at crossover points instead of exchanging",
+    "point": "Exchanges nodes at corresponding positions between trees"
+  },
+  "_comment_mutation_descriptions": {
+    "subtree": "Replaces a random subtree with a new random subtree",
+    "node": "Changes the value of a single node (function or terminal)",
+    "random": "Randomly selects between subtree, node, constant, or function mutation",
+    "parameter": "Only mutates terminal nodes (features and constants)",
+    "grow": "Extends terminal nodes into subtrees to increase tree complexity"
+  }
+}

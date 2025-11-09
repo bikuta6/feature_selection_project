@@ -1,0 +1,29 @@
+{
+    "population_size": 100,
+    "max_generations": 50,
+    "crossover_prob": 0.8,
+    "mutation_prob": 0.1,
+    "tournament_size": 3,
+    "max_depth": 6,
+    "elitism": true,
+    "use_multi_feature": false,
+    "n_features_to_create": 1,
+    "cv": 3,
+    "use_multiprocessing": true,
+    "n_jobs": -1,
+    "_comment": "Configuration for feature synthesis with multiprocessing enabled",
+    "_description": {
+        "population_size": "Size of the GA population (default: 100)",
+        "max_generations": "Maximum number of generations to evolve (default: 50)",
+        "crossover_prob": "Probability of crossover operation (default: 0.8)",
+        "mutation_prob": "Probability of mutation operation (default: 0.1)",
+        "tournament_size": "Size of tournament for selection (default: 3)",
+        "max_depth": "Maximum depth of GP trees (default: 6)",
+        "elitism": "Whether to use elitism (keep best individual) (default: true)",
+        "use_multi_feature": "Whether to evolve multiple features sequentially (default: false)",
+        "n_features_to_create": "Number of features to create when use_multi_feature is true (default: 1)",
+        "cv": "Number of cross-validation folds for fitness evaluation (default: 3)",
+        "use_multiprocessing": "Enable multiprocessing for fitness calculations (default: false)",
+        "n_jobs": "Number of processes to use for multiprocessing (-1 uses all cores, default: 1)"
+    }
+}
