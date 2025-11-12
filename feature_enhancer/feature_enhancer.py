@@ -41,11 +41,11 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
     Comprehensive feature enhancement class that combines feature synthesis and selection.
 
     This class follows sklearn's transformer interface and can:
-    1. Synthesize new features using genetic programming (optional)
-    2. Select the best features using NSGA-II optimization (optional)
+    1. Synthesize new features using genetic programming (with default config if none provided)
+    2. Select the best features using NSGA-II optimization (with default config if none provided)
 
-    The process is configurable via config dictionaries, allowing users to skip
-    either synthesis or selection steps by not providing the respective config.
+    The process is configurable via config dictionaries. If no configuration is provided
+    for synthesis or selection, default configurations are applied automatically.
     """
 
     def __init__(
@@ -62,14 +62,20 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         Initialize the FeatureEnhancer.
 
         Args:
-            synthesis_config: Configuration for feature synthesis. If None, synthesis is skipped.
-            selection_config: Configuration for feature selection. If None, selection is skipped.
+            synthesis_config: Configuration for feature synthesis. If None, default config is used.
+            selection_config: Configuration for feature selection. If None, default config is used.
             random_state: Random seed for reproducibility.
             verbose: Whether to print progress information.
             scale_features: Whether to apply standard scaling to input features before processing.
             use_multiprocessing: Whether to use multiprocessing for fitness calculations in synthesis.
             n_jobs: Number of processes to use for multiprocessing (default: 1, -1 uses all available cores).
         """
+        # Apply default configurations when None is provided
+        if synthesis_config is None:
+            synthesis_config = {}
+        if selection_config is None:
+            selection_config = {}
+
         self.synthesis_config = synthesis_config
         self.selection_config = selection_config
         self.random_state = random_state
@@ -105,8 +111,6 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         self, config: Dict[str, Any], config_type: str
     ) -> Dict[str, Any]:
         """Validate and set defaults for configuration."""
-        if config is None:
-            return None
 
         config = copy.deepcopy(config)
 
@@ -116,11 +120,11 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 "max_generations": 50,
                 "crossover_prob": 0.8,
                 "mutation_prob": 0.1,
-                "tournament_size": 3,
-                "max_depth": 6,
-                "elitism": True,
-                "n_features_to_create": 1,
-                "use_multi_feature": False,
+                "tournament_size": 10,
+                "max_depth": 20,
+                "elitism": False,
+                "n_features_to_create": 5,
+                "use_multi_feature": True,
                 "crossover_type": "subtree",
                 "mutation_type": "subtree",
             }
@@ -129,12 +133,12 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 "secondary_objective": "sparsity",
                 "population_size": 100,
                 "generations": 50,
-                "crossover_prob": 0.9,
-                "mutation_prob": 0.01,
-                "objective_weights": None,
+                "crossover_prob": 0.8,
+                "mutation_prob": 0.1,
+                "objective_weights": [0.9, 0.1],
                 "metric": "mae",
                 "normalize": False,
-                "crossover_type": "single_point",
+                "crossover_type": "uniform",
                 "mutation_type": "random_bit_flip",
             }
         else:
@@ -159,15 +163,15 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         crossover_operator = self._get_synthesis_crossover_operator(config)
         mutation_operator = self._get_synthesis_mutation_operator(config)
 
-        if config.get("use_multi_feature", False):
+        if config.get("use_multi_feature", True):
             self.synthesis_engine_ = MultiFeatureGA(
-                n_features_to_create=config.get("n_features_to_create", 1),
+                n_features_to_create=config.get("n_features_to_create", 5),
                 population_size=config.get("population_size", 100),
                 max_generations=config.get("max_generations", 50),
                 crossover_prob=config.get("crossover_prob", 0.8),
                 mutation_prob=config.get("mutation_prob", 0.1),
                 tournament_size=config.get("tournament_size", 3),
-                max_depth=config.get("max_depth", 6),
+                max_depth=config.get("max_depth", 20),
                 crossover_operator=crossover_operator,
                 mutation_operator=mutation_operator,
                 elitism=config.get("elitism", True),
@@ -202,8 +206,8 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
             secondary_objective=config.get("secondary_objective", "sparsity"),
             population_size=config.get("population_size", 100),
             generations=config.get("generations", 50),
-            crossover_prob=config.get("crossover_prob", 0.9),
-            mutation_prob=config.get("mutation_prob", 0.01),
+            crossover_prob=config.get("crossover_prob", 0.8),
+            mutation_prob=config.get("mutation_prob", 0.1),
             crossover_operator=crossover_operator,
             mutation_operator=mutation_operator,
             objective_weights=config.get("objective_weights", None),
@@ -215,7 +219,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
     def _get_synthesis_crossover_operator(self, config: Dict[str, Any]):
         """Get crossover operator for feature synthesis."""
         crossover_type = config.get("crossover_type", "subtree")
-        max_depth = config.get("max_depth", 6)
+        max_depth = config.get("max_depth", 20)
 
         if crossover_type == "subtree":
             return SubtreeCrossover(max_depth=max_depth)
@@ -233,7 +237,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         """Get mutation operator for feature synthesis."""
         mutation_type = config.get("mutation_type", "subtree")
         mutation_prob = config.get("mutation_prob", 0.1)
-        max_depth = config.get("max_depth", 6)
+        max_depth = config.get("max_depth", 20)
 
         if mutation_type == "subtree":
             return SubtreeMutation(mutation_prob, max_depth=max_depth // 2)
@@ -253,7 +257,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
 
     def _get_selection_crossover_operator(self, config: Dict[str, Any]):
         """Get crossover operator for feature selection."""
-        crossover_type = config.get("crossover_type", "single_point")
+        crossover_type = config.get("crossover_type", "uniform")
 
         if crossover_type == "single_point":
             return SinglePointCrossover()
@@ -352,51 +356,41 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         self.X_after_scaling_ = current_X
 
         # Phase 1: Feature Synthesis (if configured)
-        if synthesis_config is not None:
-            if self.verbose:
-                print("FeatureEnhancer: Starting feature synthesis phase...")
+        if self.verbose:
+            print("FeatureEnhancer: Starting feature synthesis phase...")
 
-            self._setup_synthesis_engine(synthesis_config)
+        self._setup_synthesis_engine(synthesis_config)
 
-            if self.verbose:
-                print(self.synthesis_engine_)
+        if self.verbose:
+            print(self.synthesis_engine_)
 
-            if synthesis_config.get("use_multi_feature", False):
-                # Multi-feature synthesis (use cross-validation)
-                cv_folds = synthesis_config.get("cv", 3)
-                best_features = self.synthesis_engine_.evolve_multiple_features(
-                    current_X, y, cv=cv_folds, predictor_model=model
-                )
-                self.synthesized_features_ = best_features
-                current_X = self.synthesis_engine_.create_multi_enhanced_dataset(
-                    current_X
-                )
-            else:
-                # Single feature synthesis (use cross-validation)
-                cv_folds = synthesis_config.get("cv", 3)
-                best_feature = self.synthesis_engine_.evolve(
-                    current_X, y, cv=cv_folds, predictor_model=model
-                )
-                self.synthesized_features_ = [best_feature] if best_feature else []
-                if best_feature:
-                    current_X = self.synthesis_engine_.create_enhanced_dataset(
-                        current_X
-                    )
-
-            # Update feature tracking
-            n_synthesized = len(self.synthesized_features_)
-            self.synthesized_feature_names_ = [
-                f"synthesized_feature_{i}" for i in range(n_synthesized)
-            ]
-            self.synthesis_performed_ = True
-
-            if self.verbose:
-                print(f"FeatureEnhancer: Synthesized {n_synthesized} new features")
+        if synthesis_config.get("use_multi_feature", False):
+            # Multi-feature synthesis (use cross-validation)
+            cv_folds = synthesis_config.get("cv", 3)
+            best_features = self.synthesis_engine_.evolve_multiple_features(
+                current_X, y, cv=cv_folds, predictor_model=model
+            )
+            self.synthesized_features_ = best_features
+            current_X = self.synthesis_engine_.create_multi_enhanced_dataset(current_X)
         else:
-            if self.verbose:
-                print(
-                    "FeatureEnhancer: Skipping feature synthesis (no config provided)"
-                )
+            # Single feature synthesis (use cross-validation)
+            cv_folds = synthesis_config.get("cv", 3)
+            best_feature = self.synthesis_engine_.evolve(
+                current_X, y, cv=cv_folds, predictor_model=model
+            )
+            self.synthesized_features_ = [best_feature] if best_feature else []
+            if best_feature:
+                current_X = self.synthesis_engine_.create_enhanced_dataset(current_X)
+
+        # Update feature tracking
+        n_synthesized = len(self.synthesized_features_)
+        self.synthesized_feature_names_ = [
+            f"synthesized_feature_{i}" for i in range(n_synthesized)
+        ]
+        self.synthesis_performed_ = True
+
+        if self.verbose:
+            print(f"FeatureEnhancer: Synthesized {n_synthesized} new features")
 
         self.X_after_synthesis_ = current_X
 
@@ -678,15 +672,15 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         Create FeatureEnhancer from JSON configuration files.
 
         Args:
-            synthesis_config_path: Path to synthesis configuration JSON file
-            selection_config_path: Path to selection configuration JSON file
+            synthesis_config_path: Path to synthesis configuration JSON file. If None, default config is used.
+            selection_config_path: Path to selection configuration JSON file. If None, default config is used.
             **kwargs: Additional arguments for FeatureEnhancer constructor
 
         Returns:
             FeatureEnhancer instance
         """
-        synthesis_config = None
-        selection_config = None
+        synthesis_config = {}  # Use empty dict for defaults instead of None
+        selection_config = {}  # Use empty dict for defaults instead of None
 
         if synthesis_config_path:
             with open(synthesis_config_path, "r") as f:
@@ -735,3 +729,6 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 f"got {X_scaled.shape[1]}. Returning original data."
             )
             return X_scaled
+
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}\n\t{str(self.synthesis_engine_)}\n\t{str(self.selection_engine_)}"

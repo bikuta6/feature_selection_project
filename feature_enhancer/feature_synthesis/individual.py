@@ -84,8 +84,8 @@ class Node:
             return np.minimum(child_values[0], child_values[1])
         elif self.value == "pow":
             # Protected power function
-            base = child_values[0]
-            exponent = np.clip(child_values[1], -3, 3)  # Limit exponent range
+            base = child_values[0] if abs(child_values[0]) > 1e-10 else 1.0
+            exponent = np.clip(child_values[1], -3, 3)
             with np.errstate(over="ignore", invalid="ignore"):
                 result = np.power(np.abs(base), exponent)
                 result = np.where(np.isfinite(result), result, 1.0)

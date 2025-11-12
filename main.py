@@ -46,14 +46,14 @@ from feature_enhancer import DatasetLoader, FeatureEnhancer, print_dataset_summa
 def get_model_for_task(task_type: str, model_name: str = "auto"):
     """Get appropriate model for the task type."""
     if task_type == "regression":
-        if model_name == "auto" or model_name == "linear":
-            return LinearRegression(n_jobs=-1)
+        if model_name == "auto" or model_name == "ridge":
+            return Ridge(random_state=42)
         elif model_name == "rf":
             return RandomForestRegressor(
                 n_estimators=10, max_depth=10, random_state=42, n_jobs=-1
             )
-        elif model_name == "ridge":
-            return Ridge(random_state=42)
+        elif model_name == "linear":
+            return LinearRegression(n_jobs=-1)
         elif model_name == "lasso":
             return Lasso(random_state=42)
         elif model_name == "knn":
@@ -212,16 +212,6 @@ def run_feature_enhancement(
     # Step 6: Feature Enhancement
     print(f"\n--- Step 6: Feature Enhancement ---")
 
-    # Setup default configs if not provided
-    if synthesis_config is None and selection_config is None:
-        print("No enhancement config provided, using selection only...")
-        selection_config = {
-            "secondary_objective": "sparsity",
-            "population_size": 50,
-            "generations": 25,
-            "metric": "mae" if task_type == "regression" else "accuracy",
-        }
-
     # Create enhancer
     enhancer = FeatureEnhancer(
         synthesis_config=synthesis_config,
@@ -341,7 +331,7 @@ def main():
     parser.add_argument(
         "--model",
         "-m",
-        default="ridge",
+        default="auto",
         choices=[
             "auto",
             "linear",
@@ -395,8 +385,8 @@ def main():
         return 1
 
     # Load config files
-    synthesis_config = None
-    selection_config = None
+    synthesis_config = {}
+    selection_config = {}
 
     if args.synthesis_config:
         if not os.path.exists(args.synthesis_config):
