@@ -64,34 +64,16 @@ class Node:
             # Protected exponential
             return np.exp(np.clip(child_values[0], -10, 10))
         elif self.value == "tanh":
+            # Hyperbolic tangent
             return np.tanh(child_values[0])
-        elif self.value == "sigmoid":
-            # Sigmoid function: 1 / (1 + exp(-x))
-            return 1.0 / (1.0 + np.exp(-np.clip(child_values[0], -10, 10)))
         elif self.value == "log":
             # Protected logarithm
             return np.log(np.abs(child_values[0]) + 1e-10)
         elif self.value == "sqrt":
             # Protected square root
             return np.sqrt(np.abs(child_values[0]))
-        elif self.value == "square":
-            return child_values[0] ** 2
         elif self.value == "abs":
             return np.abs(child_values[0])
-        elif self.value == "max":
-            return np.maximum(child_values[0], child_values[1])
-        elif self.value == "min":
-            return np.minimum(child_values[0], child_values[1])
-        elif self.value == "pow":
-            # Protected power function
-            base = child_values[0] if abs(child_values[0]) > 1e-10 else 1.0
-            exponent = np.clip(child_values[1], -3, 3)
-            with np.errstate(over="ignore", invalid="ignore"):
-                result = np.power(np.abs(base), exponent)
-                result = np.where(np.isfinite(result), result, 1.0)
-            return result
-        elif self.value == "atan":
-            return np.arctan(child_values[0])
         elif self.value == "tan":
             # Protected tangent
             x = np.clip(child_values[0], -np.pi / 2 + 0.01, np.pi / 2 - 0.01)
@@ -156,15 +138,9 @@ class GPIndividual:
         "cos": 1,  # Trigonometric
         "exp": 1,  # Exponential
         "tanh": 1,
-        "sigmoid": 1,  # Activation functions
         "log": 1,
         "sqrt": 1,
-        "square": 1,
         "abs": 1,  # Mathematical functions
-        "max": 2,
-        "min": 2,  # Comparison functions
-        "pow": 2,  # Power function
-        "atan": 1,
         "tan": 1,  # Additional trigonometric
         "floor": 1,
         "ceil": 1,  # Rounding functions
@@ -176,7 +152,7 @@ class GPIndividual:
         self.feat_probs = np.array([1 / n_features] * n_features)
         self.max_depth = max_depth
         self.probabilities = np.array(
-            [a for a in self.FUNCTION_SET.values()], dtype=float
+            [a**2 for a in self.FUNCTION_SET.values()], dtype=float
         )
         self.probabilities /= self.probabilities.sum().astype(float)
         self.tree = self._generate_random_tree(max_depth)
@@ -190,7 +166,7 @@ class GPIndividual:
     def _generate_random_tree(self, max_depth: int, current_depth: int = 0) -> Node:
         """Generate a random expression tree."""
         # Terminal probability increases with depth
-        terminal_prob = 0.1 + 0.9 * (current_depth / max_depth)
+        terminal_prob = current_depth / max_depth
         if current_depth == 0:
             terminal_prob = 0.0  # Ensure root is not terminal
 

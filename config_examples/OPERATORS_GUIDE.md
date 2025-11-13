@@ -72,7 +72,7 @@ Feature selection uses binary genetic algorithms where each gene represents whet
 
 ### Crossover Operators for Feature Selection
 
-#### 1. Single Point Crossover (`"single_point"`) - **Default**
+#### 1. Single Point Crossover (`"single_point"`)
 - **Description**: Crosses over at a single randomly selected point
 - **How it works**: Splits chromosomes at one point and exchanges tails
 - **Best for**: Simple, effective crossover with low disruption
@@ -86,7 +86,7 @@ Feature selection uses binary genetic algorithms where each gene represents whet
 - **Parameters**: None specific
 - **Example**: `[1,0,1,1,0]` + `[0,1,0,1,1]` → `[1,0,0,1,0]` + `[0,1,1,1,1]`
 
-#### 3. Uniform Crossover (`"uniform"`)
+#### 3. Uniform Crossover (`"uniform"`) - **Default**
 - **Description**: Each gene is independently swapped with given probability
 - **How it works**: For each position, randomly decide whether to swap based on probability
 - **Best for**: High mixing, exploring diverse feature combinations

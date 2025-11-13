@@ -121,7 +121,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 "crossover_prob": 0.8,
                 "mutation_prob": 0.1,
                 "tournament_size": 10,
-                "max_depth": 20,
+                "max_depth": 30,
                 "elitism": False,
                 "n_features_to_create": 5,
                 "use_multi_feature": True,
@@ -186,7 +186,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 crossover_prob=config.get("crossover_prob", 0.8),
                 mutation_prob=config.get("mutation_prob", 0.1),
                 tournament_size=config.get("tournament_size", 3),
-                max_depth=config.get("max_depth", 6),
+                max_depth=config.get("max_depth", 20),
                 crossover_operator=crossover_operator,
                 mutation_operator=mutation_operator,
                 elitism=config.get("elitism", True),
@@ -361,9 +361,6 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
 
         self._setup_synthesis_engine(synthesis_config)
 
-        if self.verbose:
-            print(self.synthesis_engine_)
-
         if synthesis_config.get("use_multi_feature", False):
             # Multi-feature synthesis (use cross-validation)
             cv_folds = synthesis_config.get("cv", 3)
@@ -402,9 +399,6 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 )
 
             self._setup_selection_engine(selection_config, model)
-
-            if self.verbose:
-                print(self.selection_engine_)
 
             # Fit the selector using cross-validation (no separate validation split needed)
             self.selection_engine_.fit(current_X, y)
