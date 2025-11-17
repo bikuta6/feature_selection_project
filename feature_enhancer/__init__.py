@@ -15,9 +15,9 @@ __author__ = "Feature Enhancer Team"
 
 __all__ = [
     "FeatureEnhancer",
-    "FeatureSelector", 
+    "FeatureSelector",
     "SimpleGA",
     "MultiFeatureGA",
     "DatasetLoader",
-    "print_dataset_summary"
+    "print_dataset_summary",
 ]

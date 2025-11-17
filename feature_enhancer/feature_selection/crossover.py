@@ -7,31 +7,35 @@ in genetic algorithms for feature selection optimization.
 
 from abc import ABC, abstractmethod
 from typing import Tuple
+
 import numpy as np
+
 from .individual import Individual
 
 
 class CrossoverOperator(ABC):
     """Abstract base class for crossover operators."""
-    
+
     @abstractmethod
-    def __call__(self, parent1: Individual, parent2: Individual) -> Tuple[Individual, Individual]:
+    def __call__(
+        self, parent1: Individual, parent2: Individual
+    ) -> Tuple[Individual, Individual]:
         """
         Perform crossover between two parents.
-        
+
         Args:
             parent1: First parent individual
             parent2: Second parent individual
-            
+
         Returns:
             Tuple of two offspring individuals
         """
         pass
-    
+
     def _apply_constraints(self, individual: Individual) -> None:
         """
         Apply constraints to ensure at least one feature is selected.
-        
+
         Args:
             individual: Individual to apply constraints to
         """
@@ -43,12 +47,14 @@ class CrossoverOperator(ABC):
 class SinglePointCrossover(CrossoverOperator):
     """
     Single-point crossover operator.
-    
+
     Crosses over parents at a single randomly selected point,
     creating two complementary offspring.
     """
-    
-    def __call__(self, parent1: Individual, parent2: Individual) -> Tuple[Individual, Individual]:
+
+    def __call__(
+        self, parent1: Individual, parent2: Individual
+    ) -> Tuple[Individual, Individual]:
         """Perform single-point crossover between two parents."""
         n_features = len(parent1.chromosome)
         crossover_point = np.random.randint(1, n_features)
@@ -74,12 +80,14 @@ class SinglePointCrossover(CrossoverOperator):
 class TwoPointCrossover(CrossoverOperator):
     """
     Two-point crossover operator.
-    
+
     Crosses over parents between two randomly selected points,
     swapping the middle segment between parents.
     """
-    
-    def __call__(self, parent1: Individual, parent2: Individual) -> Tuple[Individual, Individual]:
+
+    def __call__(
+        self, parent1: Individual, parent2: Individual
+    ) -> Tuple[Individual, Individual]:
         """Perform two-point crossover between two parents."""
         n_features = len(parent1.chromosome)
         point1 = np.random.randint(1, n_features)
@@ -104,21 +112,23 @@ class TwoPointCrossover(CrossoverOperator):
 class UniformCrossover(CrossoverOperator):
     """
     Uniform crossover operator.
-    
+
     Each gene is independently swapped between parents with a given probability,
     creating diverse offspring with mixed characteristics.
     """
-    
+
     def __init__(self, swap_probability: float = 0.5):
         """
         Initialize uniform crossover operator.
-        
+
         Args:
             swap_probability: Probability of swapping each gene between parents
         """
         self.swap_probability = swap_probability
 
-    def __call__(self, parent1: Individual, parent2: Individual) -> Tuple[Individual, Individual]:
+    def __call__(
+        self, parent1: Individual, parent2: Individual
+    ) -> Tuple[Individual, Individual]:
         """Perform uniform crossover between two parents."""
         n_features = len(parent1.chromosome)
 
@@ -143,21 +153,23 @@ class UniformCrossover(CrossoverOperator):
 class ArithmeticCrossover(CrossoverOperator):
     """
     Arithmetic crossover operator for binary chromosomes.
-    
+
     Performs arithmetic combination of parent chromosomes and converts
     back to binary using a threshold. Useful for exploring intermediate solutions.
     """
-    
+
     def __init__(self, alpha: float = 0.5):
         """
         Initialize arithmetic crossover operator.
-        
+
         Args:
             alpha: Weight factor for combining parents (0 < alpha < 1)
         """
         self.alpha = alpha
 
-    def __call__(self, parent1: Individual, parent2: Individual) -> Tuple[Individual, Individual]:
+    def __call__(
+        self, parent1: Individual, parent2: Individual
+    ) -> Tuple[Individual, Individual]:
         """Perform arithmetic crossover between two parents."""
         n_features = len(parent1.chromosome)
 

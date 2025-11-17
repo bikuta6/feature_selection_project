@@ -6,17 +6,19 @@ in genetic algorithms for feature selection optimization.
 """
 
 from abc import ABC, abstractmethod
+
 import numpy as np
+
 from .individual import Individual
 
 
 class MutationOperator(ABC):
     """Abstract base class for mutation operators."""
-    
+
     def __init__(self, probability: float):
         """
         Initialize mutation operator.
-        
+
         Args:
             probability: Mutation probability (0 < probability < 1)
         """
@@ -26,35 +28,32 @@ class MutationOperator(ABC):
     def __call__(self, individual: Individual) -> None:
         """
         Apply mutation to an individual.
-        
+
         Args:
             individual: Individual to mutate (modified in-place)
         """
         pass
-    
+
     def _apply_constraints(self, individual: Individual) -> None:
         """
         Apply constraints to ensure at least one feature is selected.
-        
+
         Args:
             individual: Individual to apply constraints to
         """
         if not np.any(individual.chromosome):
             # If no features selected, randomly select one
             individual.chromosome[np.random.randint(len(individual.chromosome))] = True
-        elif np.all(individual.chromosome):
-            # If all features selected, randomly deselect one
-            individual.chromosome[np.random.randint(len(individual.chromosome))] = False
 
 
 class RandomBitFlip(MutationOperator):
     """
     Random bit-flip mutation operator.
-    
+
     Each bit in the chromosome is independently flipped with the given probability.
     This provides fine-grained exploration of the solution space.
     """
-    
+
     def __call__(self, individual: Individual) -> None:
         """Apply random bit-flip mutation to individual."""
         for i in range(len(individual.chromosome)):
@@ -68,11 +67,11 @@ class RandomBitFlip(MutationOperator):
 class UniformMutation(MutationOperator):
     """
     Uniform mutation operator.
-    
+
     Flips a single randomly selected bit with the given probability.
     Provides controlled exploration with minimal disruption.
     """
-    
+
     def __call__(self, individual: Individual) -> None:
         """Apply uniform mutation to individual."""
         if np.random.random() < self.probability:
@@ -87,15 +86,15 @@ class UniformMutation(MutationOperator):
 class BlockMutation(MutationOperator):
     """
     Block mutation operator.
-    
+
     Flips a contiguous block of bits with the given probability.
     Useful for exploring correlated feature groups.
     """
-    
+
     def __init__(self, probability: float, block_size: int = 3):
         """
         Initialize block mutation operator.
-        
+
         Args:
             probability: Mutation probability
             block_size: Size of the block to mutate
@@ -121,15 +120,17 @@ class BlockMutation(MutationOperator):
 class AdaptiveMutation(MutationOperator):
     """
     Adaptive mutation operator.
-    
+
     Adjusts mutation rate based on the current feature selection ratio.
     Higher rates when too many or too few features are selected.
     """
-    
-    def __init__(self, probability: float, min_prob: float = 0.01, max_prob: float = 0.1):
+
+    def __init__(
+        self, probability: float, min_prob: float = 0.01, max_prob: float = 0.1
+    ):
         """
         Initialize adaptive mutation operator.
-        
+
         Args:
             probability: Base mutation probability
             min_prob: Minimum mutation probability

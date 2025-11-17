@@ -343,9 +343,9 @@ class SimpleGA:
             "avg_fitness_history": self.avg_fitness_history,
             "best_individual": self.best_individual,
             "baseline_mae": self.baseline_mae,
-            "final_improvement": self.best_individual.fitness
-            if self.best_individual
-            else 0.0,
+            "final_improvement": (
+                self.best_individual.fitness if self.best_individual else 0.0
+            ),
         }
 
     def create_enhanced_dataset(self, X: np.ndarray) -> np.ndarray:

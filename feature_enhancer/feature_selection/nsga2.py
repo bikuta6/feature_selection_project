@@ -357,12 +357,9 @@ class NSGA2:
         diff_obj2 = max_obj2 - min_obj2 if max_obj2 > min_obj2 else 1.0
 
         if objective_weights is None:
-            # Select most balanced solution (sum of objectives)
-            best = max(
-                pareto_front,
-                key=lambda x: ((x.objectives[0] - min_obj1) / diff_obj1)
-                + ((x.objectives[1] - min_obj2) / diff_obj2),
-            )
+            # Select the best individual for objective 1 (error)
+            best = max(pareto_front, key=lambda x: x.objectives[0] - min_obj1)
+
         else:
             # Use specified weights
             best = max(

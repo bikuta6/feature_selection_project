@@ -135,7 +135,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 "generations": 50,
                 "crossover_prob": 0.8,
                 "mutation_prob": 0.1,
-                "objective_weights": [0.9, 0.1],
+                "objective_weights": [0.95, 0.05],
                 "metric": "mae",
                 "normalize": False,
                 "crossover_type": "uniform",
@@ -472,9 +472,11 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                     "type": "synthesized",
                     "synthesis_index": synth_idx,
                     "name": f"synthesized_feature_{synth_idx}",
-                    "expression": str(self.synthesized_features_[synth_idx])
-                    if synth_idx < len(self.synthesized_features_)
-                    else "unknown",
+                    "expression": (
+                        str(self.synthesized_features_[synth_idx])
+                        if synth_idx < len(self.synthesized_features_)
+                        else "unknown"
+                    ),
                 }
 
     def transform(self, X):
@@ -570,9 +572,11 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
             info["synthesis_info"] = {
                 "n_features_synthesized": len(self.synthesized_features_),
                 "synthesized_expressions": [str(f) for f in self.synthesized_features_],
-                "synthesis_statistics": self.synthesis_engine_.get_statistics()
-                if hasattr(self.synthesis_engine_, "get_statistics")
-                else None,
+                "synthesis_statistics": (
+                    self.synthesis_engine_.get_statistics()
+                    if hasattr(self.synthesis_engine_, "get_statistics")
+                    else None
+                ),
             }
 
         # Add selection info
@@ -591,10 +595,11 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
             "original_features_selected": n_original_selected,
             "synthesized_features_selected": n_synthesized_selected,
             "total_features_selected": len(self.selected_features_),
-            "feature_reduction_ratio": 1
-            - (len(self.selected_features_) / self.n_features_in_)
-            if self.n_features_in_ > 0
-            else 0,
+            "feature_reduction_ratio": (
+                1 - (len(self.selected_features_) / self.n_features_in_)
+                if self.n_features_in_ > 0
+                else 0
+            ),
         }
 
         return info
@@ -619,9 +624,9 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                     f["type"] == "synthesized" and f["synthesis_index"] == i
                     for f in self.feature_origin_map_.values()
                 ),
-                "complexity": feature.get_size()
-                if hasattr(feature, "get_size")
-                else None,
+                "complexity": (
+                    feature.get_size() if hasattr(feature, "get_size") else None
+                ),
                 "fitness": feature.fitness if hasattr(feature, "fitness") else None,
             }
             info.append(feature_info)
@@ -647,9 +652,11 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 "final_name": self.selected_feature_names_[final_idx],
                 "origin_type": origin_info["type"],
                 "original_name": origin_info.get("name", ""),
-                "expression": origin_info.get("expression", "")
-                if origin_info["type"] == "synthesized"
-                else "",
+                "expression": (
+                    origin_info.get("expression", "")
+                    if origin_info["type"] == "synthesized"
+                    else ""
+                ),
             }
             data.append(row)
 
