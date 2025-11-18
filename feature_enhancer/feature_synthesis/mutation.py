@@ -48,7 +48,7 @@ class SubtreeMutation(MutationOperator):
                 # Mutation node is root - ensure we don't create single terminal tree
                 if new_subtree.is_terminal():
                     # Force creation of a more complex tree
-                    func_name = np.random.choice(list(individual.FUNCTION_SET.keys()))
+                    func_name = np.random.choice(list(individual.FUNCTION_SET.keys()), p=individual.probabilities)
                     arity = individual.FUNCTION_SET[func_name]
                     complex_tree = Node(func_name, arity)
                     complex_tree.add_child(new_subtree)
@@ -162,7 +162,7 @@ class RandomMutation(MutationOperator):
         if parent_node is None:
             # If replacing root, ensure we don't create single terminal tree
             if new_subtree.is_terminal():
-                func_name = np.random.choice(list(individual.FUNCTION_SET.keys()))
+                func_name = np.random.choice(list(individual.FUNCTION_SET.keys()), p=individual.probabilities)
                 arity = individual.FUNCTION_SET[func_name]
                 complex_tree = Node(func_name, arity)
                 complex_tree.add_child(new_subtree)
@@ -295,7 +295,7 @@ class GrowMutation(MutationOperator):
                 growth_node = np.random.choice(terminal_nodes)
 
                 # Choose a random function
-                func_name = np.random.choice(list(individual.FUNCTION_SET.keys()))
+                func_name = np.random.choice(list(individual.FUNCTION_SET.keys()), p=individual.probabilities)
                 arity = individual.FUNCTION_SET[func_name]
 
                 # Convert terminal to function
@@ -319,3 +319,38 @@ class GrowMutation(MutationOperator):
                         else:
                             child = Node(np.random.uniform(-2, 2), 0)
                     growth_node.add_child(child)
+
+
+class AdaptiveTreeMutation(MutationOperator):
+    """Adaptive mutation that shifts from subtree to grow mutation using decay rate."""
+    
+    def __init__(self, probability: float, max_depth: int = 20, decay_rate: float = 0.95, 
+                 reset_between_features: bool = True):
+        super().__init__(probability)
+        self.max_depth = max_depth
+        self.decay_rate = decay_rate
+        self.initial_subtree_prob = 0.9
+        self.current_subtree_prob = self.initial_subtree_prob
+        self.reset_between_features = reset_between_features
+        
+        # Create mutation operators
+        self.subtree_mutation = SubtreeMutation(1.0, max_depth)
+        self.grow_mutation = GrowMutation(1.0, max_depth)
+        
+    def reset(self):
+        """Reset mutation probabilities to initial state."""
+        if self.reset_between_features:
+            self.current_subtree_prob = self.initial_subtree_prob
+        
+    def update_generation(self):
+        """Update probabilities for next generation using decay."""
+        self.current_subtree_prob *= self.decay_rate
+        
+    def __call__(self, individual: GPIndividual) -> None:
+        """Apply adaptive mutation based on current probabilities."""
+        if np.random.random() < self.probability:
+            # Choose mutation type based on current probabilities
+            if np.random.random() < self.current_subtree_prob:
+                self.subtree_mutation(individual)
+            else:
+                self.grow_mutation(individual)

@@ -33,6 +33,7 @@ from .feature_synthesis.mutation import (
     ParameterMutation,
     RandomMutation,
     SubtreeMutation,
+    AdaptiveTreeMutation,
 )
 
 
@@ -120,28 +121,28 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 "max_generations": 50,
                 "crossover_prob": 0.8,
                 "mutation_prob": 0.1,
-                "tournament_size": 3,
+                "tournament_size": 10,
                 "max_depth": 30,
                 "elitism": False,
                 "n_features_to_create": 5,
                 "use_multi_feature": True,
                 "crossover_type": "subtree",
-                "mutation_type": "subtree",
-                "cv": 5,
+                "mutation_type": "adaptive",
+                "cv": 3,
             }
         elif config_type == "selection":
             defaults = {
-                "secondary_objective": "variance",
+                "secondary_objective": "sparsity",
                 "population_size": 100,
                 "generations": 50,
                 "crossover_prob": 0.8,
                 "mutation_prob": 0.1,
-                "objective_weights": [0.95, 0.05],
+                "objective_weights": [1.0, 0.0],
                 "metric": "mae",
                 "normalize": False,
                 "crossover_type": "uniform",
                 "mutation_type": "random_bit_flip",
-                "cv": 5,
+                "cv": 3,
             }
         else:
             raise ValueError(f"Unknown config type: {config_type}")
@@ -251,6 +252,8 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
             return ParameterMutation(mutation_prob)
         elif mutation_type == "grow":
             return GrowMutation(mutation_prob, max_depth=max_depth)
+        elif mutation_type == "adaptive":
+            return AdaptiveTreeMutation(mutation_prob, max_depth=max_depth)
         else:
             raise ValueError(
                 f"Unknown synthesis mutation type: {mutation_type}. "
@@ -365,7 +368,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
 
         if synthesis_config.get("use_multi_feature", False):
             # Multi-feature synthesis (use cross-validation)
-            cv_folds = synthesis_config.get("cv", 5)
+            cv_folds = synthesis_config.get("cv", 3)
             best_features = self.synthesis_engine_.evolve_multiple_features(
                 current_X, y, cv=cv_folds, predictor_model=model
             )
@@ -373,7 +376,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
             current_X = self.synthesis_engine_.create_multi_enhanced_dataset(current_X)
         else:
             # Single feature synthesis (use cross-validation)
-            cv_folds = synthesis_config.get("cv", 5)
+            cv_folds = synthesis_config.get("cv", 3)
             best_feature = self.synthesis_engine_.evolve(
                 current_X, y, cv=cv_folds, predictor_model=model
             )

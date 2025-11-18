@@ -2,7 +2,7 @@
 Comprehensive comparison script for Feature Enhancement across datasets and models.
 
 This script:
-1. Runs feature enhancement on all available datasets using Ridge regression for enhancement
+1. Runs feature enhancement on all available datasets using Linear regression for enhancement
 2. Compares performance across multiple regression models
 3. Generates a CSV file with detailed results
 4. Provides summary statistics and visualizations
@@ -127,8 +127,8 @@ def process_dataset(dataset_path, dataset_name, target_column=-1):
             X_processed, y_processed, test_size=0.2, random_state=42
         )
 
-        # Feature Enhancement using Ridge regression
-        print(f"Applying feature enhancement with Ridge regression...")
+        # Feature Enhancement using Linear regression
+        print(f"Applying feature enhancement with Linear regression...")
         enhancer = FeatureEnhancer(
             synthesis_config={},  # Use default synthesis config
             selection_config={},  # Use default selection config
@@ -137,12 +137,12 @@ def process_dataset(dataset_path, dataset_name, target_column=-1):
             verbose=False,
         )
 
-        # Use Ridge regression for the enhancement process
-        ridge_model = Ridge(random_state=42)
+        # Use Linear regression for the enhancement process
+        linear_model = LinearRegression(n_jobs=-1)
 
         # Apply enhancement
         enhancement_start = time.time()
-        X_enhanced = enhancer.fit_transform(X_train_full, y_train_full, ridge_model)
+        X_enhanced = enhancer.fit_transform(X_train_full, y_train_full, linear_model)
         X_test_enhanced = enhancer.transform(X_test)
         enhancement_time = time.time() - enhancement_start
 

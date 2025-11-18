@@ -50,7 +50,7 @@ class SubtreeCrossover(CrossoverOperator):
             replacement = crossover_node2.copy()
             if replacement.is_terminal():
                 # Create a more complex tree
-                func_name = np.random.choice(list(offspring1.FUNCTION_SET.keys()))
+                func_name = np.random.choice(list(offspring1.FUNCTION_SET.keys()), p=offspring1.probabilities)
                 arity = offspring1.FUNCTION_SET[func_name]
                 complex_tree = Node(func_name, arity)
                 complex_tree.add_child(replacement)
@@ -161,7 +161,7 @@ class RandomCrossover(CrossoverOperator):
         if parent_node1 is None:
             # Check if new subtree would create single terminal tree
             if new_subtree1.is_terminal():
-                func_name = np.random.choice(list(offspring1.FUNCTION_SET.keys()))
+                func_name = np.random.choice(list(offspring1.FUNCTION_SET.keys()), p=offspring1.probabilities)
                 arity = offspring1.FUNCTION_SET[func_name]
                 complex_tree = Node(func_name, arity)
                 complex_tree.add_child(new_subtree1)

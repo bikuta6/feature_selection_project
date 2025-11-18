@@ -165,6 +165,10 @@ class SimpleGA:
             self.best_fitness_history.append(best_fitness)
             self.avg_fitness_history.append(avg_fitness)
 
+            # Update adaptive mutation if using it
+            if hasattr(self.mutation_operator, 'update_generation'):
+                self.mutation_operator.update_generation()
+
             # Update best individual
             best_idx = np.argmax(fitnesses)
             if (
