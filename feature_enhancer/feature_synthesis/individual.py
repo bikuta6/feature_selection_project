@@ -66,22 +66,8 @@ class Node:
         elif self.value == "tanh":
             # Hyperbolic tangent
             return np.tanh(child_values[0])
-        elif self.value == "log":
-            # Protected logarithm
-            return np.log(np.abs(child_values[0]) + 1e-10)
-        elif self.value == "sqrt":
-            # Protected square root
-            return np.sqrt(np.abs(child_values[0]))
         elif self.value == "abs":
             return np.abs(child_values[0])
-        elif self.value == "tan":
-            # Protected tangent
-            x = np.clip(child_values[0], -np.pi / 2 + 0.01, np.pi / 2 - 0.01)
-            return np.tan(x)
-        elif self.value == "floor":
-            return np.floor(child_values[0])
-        elif self.value == "ceil":
-            return np.ceil(child_values[0])
         elif self.value == "neg":
             return -child_values[0]
         else:
@@ -138,12 +124,7 @@ class GPIndividual:
         "cos": 1,  # Trigonometric
         "exp": 1,  # Exponential
         "tanh": 1,
-        "log": 1,
-        "sqrt": 1,
         "abs": 1,  # Mathematical functions
-        "tan": 1,  # Additional trigonometric
-        "floor": 1,
-        "ceil": 1,  # Rounding functions
         "neg": 1,  # Negation
     }
 

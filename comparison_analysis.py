@@ -44,11 +44,9 @@ def get_regression_models():
     return {
         "Linear": LinearRegression(n_jobs=-1),
         "Ridge": Ridge(random_state=42),
-        "RandomForest": RandomForestRegressor(
-            n_estimators=50, max_depth=10, random_state=42, n_jobs=-1
-        ),
-        "KNN": KNeighborsRegressor(n_neighbors=5, n_jobs=-1),
-        "DecisionTree": DecisionTreeRegressor(random_state=42, max_depth=10),
+        "RandomForest": RandomForestRegressor(random_state=42, n_jobs=-1),
+        "KNN": KNeighborsRegressor(n_neighbors=10, n_jobs=-1),
+        "DecisionTree": DecisionTreeRegressor(random_state=42),
         "MLP": MLPRegressor(
             hidden_layer_sizes=(100, 50), random_state=42, max_iter=500
         ),

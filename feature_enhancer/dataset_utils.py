@@ -2,11 +2,12 @@
 Dataset utilities for FeatureEnhancer
 """
 
-import pandas as pd
-import numpy as np
-from typing import Tuple, Optional, List, Union
-from sklearn.model_selection import train_test_split
 from pathlib import Path
+from typing import List, Optional, Tuple, Union
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 class DatasetLoader:
@@ -115,6 +116,7 @@ class DatasetLoader:
             y_processed: Processed target
         """
         X_processed = X.copy()
+        X_processed = X_processed.convert_dtypes()
         y_processed = y.copy()
 
         print(f"Preprocessing dataset...")

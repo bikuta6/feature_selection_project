@@ -150,7 +150,7 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
     def _setup_fitness_functions(self, baseline_error):
         """Setup fitness functions: Error (always) + Secondary (selectable)."""
         # First objective: always R2-based fitness (works well with cross-validation)
-        error_fitness = ErrorFitness(baseline_error)
+        error_fitness = R2Fitness()
 
         # Second objective: user selectable
         secondary_fitness = self._get_secondary_fitness_function()

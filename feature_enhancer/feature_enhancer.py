@@ -120,17 +120,18 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 "max_generations": 50,
                 "crossover_prob": 0.8,
                 "mutation_prob": 0.1,
-                "tournament_size": 10,
+                "tournament_size": 3,
                 "max_depth": 30,
                 "elitism": False,
                 "n_features_to_create": 5,
                 "use_multi_feature": True,
                 "crossover_type": "subtree",
                 "mutation_type": "subtree",
+                "cv": 5,
             }
         elif config_type == "selection":
             defaults = {
-                "secondary_objective": "sparsity",
+                "secondary_objective": "variance",
                 "population_size": 100,
                 "generations": 50,
                 "crossover_prob": 0.8,
@@ -140,6 +141,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 "normalize": False,
                 "crossover_type": "uniform",
                 "mutation_type": "random_bit_flip",
+                "cv": 5,
             }
         else:
             raise ValueError(f"Unknown config type: {config_type}")
@@ -240,15 +242,15 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         max_depth = config.get("max_depth", 20)
 
         if mutation_type == "subtree":
-            return SubtreeMutation(mutation_prob, max_depth=max_depth // 2)
+            return SubtreeMutation(mutation_prob, max_depth=max_depth)
         elif mutation_type == "node":
             return NodeMutation(mutation_prob)
         elif mutation_type == "random":
-            return RandomMutation(mutation_prob, max_depth=max_depth // 2)
+            return RandomMutation(mutation_prob, max_depth=max_depth)
         elif mutation_type == "parameter":
             return ParameterMutation(mutation_prob)
         elif mutation_type == "grow":
-            return GrowMutation(mutation_prob, max_depth=max_depth // 2)
+            return GrowMutation(mutation_prob, max_depth=max_depth)
         else:
             raise ValueError(
                 f"Unknown synthesis mutation type: {mutation_type}. "
@@ -363,7 +365,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
 
         if synthesis_config.get("use_multi_feature", False):
             # Multi-feature synthesis (use cross-validation)
-            cv_folds = synthesis_config.get("cv", 3)
+            cv_folds = synthesis_config.get("cv", 5)
             best_features = self.synthesis_engine_.evolve_multiple_features(
                 current_X, y, cv=cv_folds, predictor_model=model
             )
@@ -371,7 +373,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
             current_X = self.synthesis_engine_.create_multi_enhanced_dataset(current_X)
         else:
             # Single feature synthesis (use cross-validation)
-            cv_folds = synthesis_config.get("cv", 3)
+            cv_folds = synthesis_config.get("cv", 5)
             best_feature = self.synthesis_engine_.evolve(
                 current_X, y, cv=cv_folds, predictor_model=model
             )
