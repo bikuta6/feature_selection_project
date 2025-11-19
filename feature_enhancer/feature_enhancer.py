@@ -57,7 +57,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         selection_config: Optional[Dict[str, Any]] = None,
         random_state: Optional[int] = None,
         verbose: bool = True,
-        scale_features: bool = False,
+        scale_features: bool = True,
         use_multiprocessing: bool = False,
         n_jobs: int = 1,
         guarantee_improvement: bool = True,  # ← NEW PARAMETER
@@ -130,23 +130,23 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
 
         if config_type == "synthesis":
             defaults = {
-                "population_size": 20,
+                "population_size": 50,
                 "max_generations": 50,
                 "crossover_prob": 0.7,
                 "mutation_prob": 0.1,
                 "tournament_size": 3,
-                "max_depth": 10,
+                "max_depth": 5,
                 "elitism": False,
                 "n_features_to_create": 3,
                 "use_multi_feature": True,
                 "crossover_type": "subtree",
                 "mutation_type": "adaptive",
-                "cv": 2,
+                "cv": 3,
                 "metric": "mae",
             }
         elif config_type == "selection":
             defaults = {
-                "secondary_objective": "variance",
+                "secondary_objective": "sparsity",
                 "population_size": 20,
                 "generations": 50,
                 "crossover_prob": 0.7,
@@ -156,7 +156,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 "normalize": False,
                 "crossover_type": "uniform",
                 "mutation_type": "random_bit_flip",
-                "cv": 2,  # ← INCREASED from 3 to 5
+                "cv": 3,  # ← INCREASED from 3 to 5
             }
         else:
             raise ValueError(f"Unknown config type: {config_type}")

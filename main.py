@@ -133,7 +133,7 @@ def run_feature_enhancement(
     selection_config: dict = None,
     model_name: str = "auto",
     test_size: float = 0.2,
-    scale_features: bool = True,
+    scale_features: bool = False,
     random_state: int = 42,
     verbose: bool = True,
     use_multiprocessing: bool = False,

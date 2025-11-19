@@ -1,7 +1,7 @@
 Feature Enhancement Comparison Summary Report
 ==================================================
 
-Generated: 2025-11-19 14:56:23
+Generated: 2025-11-19 15:33:43
 
 Overall Statistics:
 Total evaluations: 42
@@ -9,15 +9,15 @@ Successful evaluations: 42
 Success rate: 100.0%
 
 MAE Improvements (Primary Metric):
-Mean improvement: +9.25%
-Median improvement: +4.35%
-Std improvement: 18.85%
-Min improvement: -29.04%
-Max improvement: +67.36%
-Positive improvements: 30/42 (71.4%)
+Mean improvement: +12.40%
+Median improvement: +7.10%
+Std improvement: 17.72%
+Min improvement: -8.84%
+Max improvement: +67.59%
+Positive improvements: 34/42 (81.0%)
 
 R² Improvements (Secondary):
-Mean improvement: +0.0785
-Median improvement: +0.0262
-Positive improvements: 32/42 (76.2%)
+Mean improvement: +0.0827
+Median improvement: +0.0273
+Positive improvements: 31/42 (73.8%)
 

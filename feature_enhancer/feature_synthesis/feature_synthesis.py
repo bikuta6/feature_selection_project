@@ -324,16 +324,12 @@ class SimpleGA:
 
             # Calculate fitness from R2
             fitness = r2
-
-            # Add parsimony pressure (prefer smaller trees)
-            complexity_penalty = 0.001 * individual.get_size()
-            fitness -= complexity_penalty
-
-            return max(fitness, 0.0)  # Ensure non-negative fitness
+            size_penalty = -1 * individual.get_size() * 0.0001
+            return fitness + size_penalty
 
         except Exception as e:
             # Return zero fitness for invalid individuals
-            return 0.0
+            return -1.0
 
     def _tournament_selection(self, population: List[GPIndividual]) -> GPIndividual:
         """Select an individual using tournament selection."""
