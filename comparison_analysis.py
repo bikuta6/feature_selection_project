@@ -28,6 +28,7 @@ sys.path.append(str(Path(__file__).parent))
 from sklearn.ensemble import (
     RandomForestRegressor,
     GradientBoostingRegressor,
+    VotingRegressor,
 )
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
@@ -141,7 +142,13 @@ def process_dataset(dataset_path, dataset_name, target_column=-1):
             guarantee_improvement=True,
         )
 
-        enhancement_model = Ridge(random_state=42, alpha=1.0, solver="cholesky")
+        enhancement_model = VotingRegressor(
+            estimators=[
+                ("ridge", Ridge(random_state=42, alpha=1.0, solver="cholesky")),
+                ("tree", DecisionTreeRegressor(random_state=42, max_depth=5, max_features="log2")),
+            ],
+            n_jobs=1,
+        )
         print(f"Applying feature enhancement with {enhancement_model.__class__.__name__}...")
 
         # Apply enhancement
