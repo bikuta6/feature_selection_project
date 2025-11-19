@@ -27,6 +27,7 @@ sys.path.append(str(Path(__file__).parent))
 
 from sklearn.ensemble import (
     RandomForestRegressor,
+    GradientBoostingRegressor,
 )
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
@@ -128,21 +129,24 @@ def process_dataset(dataset_path, dataset_name, target_column=-1):
         )
 
         # Feature Enhancement using Linear regression
-        print(f"Applying feature enhancement with Linear regression...")
+        
         enhancer = FeatureEnhancer(
             synthesis_config={},  # Use default synthesis config
             selection_config={},  # Use default selection config
             scale_features=True,
             random_state=42,
-            verbose=False,
+            verbose=True,
+            use_multiprocessing=False,
+            n_jobs=1,
+            guarantee_improvement=True,
         )
 
-        # Use Linear regression for the enhancement process
-        linear_model = LinearRegression(n_jobs=-1)
+        enhancement_model = Ridge(random_state=42, alpha=1.0, solver="cholesky")
+        print(f"Applying feature enhancement with {enhancement_model.__class__.__name__}...")
 
         # Apply enhancement
         enhancement_start = time.time()
-        X_enhanced = enhancer.fit_transform(X_train_full, y_train_full, linear_model)
+        X_enhanced = enhancer.fit_transform(X_train_full, y_train_full, enhancement_model)
         X_test_enhanced = enhancer.transform(X_test)
         enhancement_time = time.time() - enhancement_start
 
