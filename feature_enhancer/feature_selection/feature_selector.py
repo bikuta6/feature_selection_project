@@ -7,15 +7,15 @@ from tqdm import tqdm
 
 from .crossover import SinglePointCrossover
 from .fitness import (
-    ErrorFitness,
-    R2Fitness,
-    SparsityFitness,
     CorrelationFitness,
-    VarianceFitness,
+    ErrorFitness,
     InformationGainFitness,
+    MRMRFitness,  # ← NEW
     MutualInformationFitness,  # ← NEW
-    RedundancyFitness,          # ← NEW
-    MRMRFitness,                # ← NEW
+    R2Fitness,
+    RedundancyFitness,  # ← NEW
+    SparsityFitness,
+    VarianceFitness,
 )
 from .individual import Individual
 from .mutation import RandomBitFlip
@@ -73,7 +73,15 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
         self.final_error = None
 
         # Validate secondary objective
-        valid_objectives = ["sparsity", "correlation", "variance", "information_gain", "mutual_info", "redundancy", "mrmr"]  # ← UPDATED
+        valid_objectives = [
+            "sparsity",
+            "correlation",
+            "variance",
+            "information_gain",
+            "mutual_info",
+            "redundancy",
+            "mrmr",
+        ]  # ← UPDATED
         if self.secondary_objective not in valid_objectives:
             raise ValueError(f"secondary_objective must be one of: {valid_objectives}")
 
@@ -146,11 +154,17 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
         elif self.secondary_objective == "information_gain":
             return InformationGainFitness()
         elif self.secondary_objective == "mutual_info":  # ← NEW
-            return MutualInformationFitness(task="regression" if self.metric == "mae" else "classification", random_state=self.random_state)
+            return MutualInformationFitness(
+                task="regression" if self.metric == "mae" else "classification",
+                random_state=self.random_state,
+            )
         elif self.secondary_objective == "redundancy":  # ← NEW
             return RedundancyFitness(random_state=self.random_state)
         elif self.secondary_objective == "mrmr":  # ← NEW
-            return MRMRFitness(task="regression" if self.metric == "mae" else "classification", random_state=self.random_state)
+            return MRMRFitness(
+                task="regression" if self.metric == "mae" else "classification",
+                random_state=self.random_state,
+            )
         else:
             raise ValueError(
                 f"Unrecognized secondary objective: {self.secondary_objective}"

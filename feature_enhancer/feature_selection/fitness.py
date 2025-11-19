@@ -11,7 +11,7 @@ from typing import Any, Union
 
 import numpy as np
 from scipy.stats import pearsonr
-from sklearn.feature_selection import mutual_info_regression, mutual_info_classif
+from sklearn.feature_selection import mutual_info_classif, mutual_info_regression
 from sklearn.metrics import accuracy_score, mean_absolute_error
 from sklearn.model_selection import cross_val_score
 
@@ -63,7 +63,6 @@ class ErrorFitness(FitnessFunction):
         if metric not in ["mae", "accuracy"]:
             raise ValueError(f"Unsupported metric: {metric}")
 
-
     def __call__(self, individual, model, X_train, y_train, cv=3) -> float:
         """Calculate error-based fitness using cross-validation."""
         selected_features = individual.chromosome
@@ -91,9 +90,8 @@ class ErrorFitness(FitnessFunction):
                 )
                 error = 1 - np.mean(scores)  # Error rate
             else:
-                return 0.0
-            
-            
+                return -np.inf
+
             return error
 
         except Exception:
@@ -221,7 +219,7 @@ class InformationGainFitness(FitnessFunction):
 
     Approximates information gain using correlation with target variable.
     Higher correlation indicates potentially higher information content.
-    
+
     NOTE: Only captures LINEAR relationships. Use MutualInformationFitness
     for non-linear relationships.
     """
@@ -256,35 +254,37 @@ class InformationGainFitness(FitnessFunction):
 class MutualInformationFitness(FitnessFunction):
     """
     Fitness function based on Mutual Information with target variable.
-    
+
     Uses sklearn's mutual_info_regression/classif to measure both linear
     and non-linear relationships between features and target.
-    
+
     Advantages over InformationGainFitness (correlation):
     - Captures non-linear relationships (polynomials, exponentials, etc.)
     - Detects complex interactions
     - More robust to outliers
     - Better for real-world data with complex patterns
-    
+
     Args:
         task: 'regression' or 'classification'
         n_neighbors: Number of neighbors for KNN-based MI estimation (default: 3)
         random_state: Random seed for reproducibility
     """
-    
-    def __init__(self, task='regression', n_neighbors=3, random_state=None):
+
+    def __init__(self, task="regression", n_neighbors=3, random_state=None):
         """Initialize Mutual Information fitness function."""
-        if task not in ['regression', 'classification']:
-            raise ValueError(f"Task must be 'regression' or 'classification', got {task}")
-        
+        if task not in ["regression", "classification"]:
+            raise ValueError(
+                f"Task must be 'regression' or 'classification', got {task}"
+            )
+
         self.task = task
         self.n_neighbors = n_neighbors
         self.random_state = random_state
-    
+
     def __call__(self, individual, model, X_train, y_train, cv=3) -> float:
         """
         Calculate MI-based fitness (higher MI = higher fitness).
-        
+
         Returns:
             Average mutual information between selected features and target.
             Range: [0, +∞), normalized to [0, 1] for compatibility.
@@ -298,35 +298,35 @@ class MutualInformationFitness(FitnessFunction):
 
         try:
             # Calculate mutual information for each selected feature
-            if self.task == 'regression':
+            if self.task == "regression":
                 mi_scores = mutual_info_regression(
-                    X_selected, 
+                    X_selected,
                     y_train,
                     n_neighbors=self.n_neighbors,
-                    random_state=self.random_state
+                    random_state=self.random_state,
                 )
             else:  # classification
                 mi_scores = mutual_info_classif(
                     X_selected,
                     y_train,
                     n_neighbors=self.n_neighbors,
-                    random_state=self.random_state
+                    random_state=self.random_state,
                 )
-            
+
             # Filter out NaN/inf values
             mi_scores = mi_scores[~np.isnan(mi_scores) & ~np.isinf(mi_scores)]
-            
+
             if len(mi_scores) == 0:
                 return 0.0
-            
+
             # Average MI across selected features
             avg_mi = np.mean(mi_scores)
-            
+
             # Normalize to [0, 1] range using sigmoid-like function
             # MI values typically range from 0 to ~5 for normalized data
             # Use tanh for smooth normalization
             normalized_mi = np.tanh(avg_mi / 2.0)
-            
+
             return float(normalized_mi)
 
         except Exception as e:
@@ -338,27 +338,27 @@ class MutualInformationFitness(FitnessFunction):
 class RedundancyFitness(FitnessFunction):
     """
     Fitness function based on minimizing redundancy between selected features.
-    
+
     Uses Mutual Information to measure redundancy (unlike CorrelationFitness
     which only captures linear redundancy).
-    
+
     Promotes solutions with diverse, non-redundant features by minimizing
     average MI between pairs of selected features.
-    
+
     Args:
         n_neighbors: Number of neighbors for KNN-based MI estimation (default: 3)
         random_state: Random seed for reproducibility
     """
-    
+
     def __init__(self, n_neighbors=3, random_state=None):
         """Initialize Redundancy fitness function."""
         self.n_neighbors = n_neighbors
         self.random_state = random_state
-    
+
     def __call__(self, individual, model, X_train, y_train, cv=3) -> float:
         """
         Calculate redundancy-based fitness (lower redundancy = higher fitness).
-        
+
         Returns:
             1.0 - normalized_redundancy, where redundancy is average MI
             between pairs of selected features.
@@ -382,11 +382,11 @@ class RedundancyFitness(FitnessFunction):
                         # Treat one feature as "target" to compute MI
                         mi_score = mutual_info_regression(
                             X_selected[:, [j]],  # Feature j
-                            X_selected[:, i],     # Feature i as "target"
+                            X_selected[:, i],  # Feature i as "target"
                             n_neighbors=self.n_neighbors,
-                            random_state=self.random_state
+                            random_state=self.random_state,
                         )[0]
-                        
+
                         if not np.isnan(mi_score) and not np.isinf(mi_score):
                             redundancy_scores.append(mi_score)
                     except Exception:
@@ -398,10 +398,10 @@ class RedundancyFitness(FitnessFunction):
 
             # Average redundancy
             avg_redundancy = np.mean(redundancy_scores)
-            
+
             # Normalize to [0, 1] and invert (lower redundancy = higher fitness)
             normalized_redundancy = np.tanh(avg_redundancy / 2.0)
-            
+
             return float(1.0 - normalized_redundancy)
 
         except Exception as e:
@@ -412,14 +412,14 @@ class RedundancyFitness(FitnessFunction):
 class MRMRFitness(FitnessFunction):
     """
     Minimum Redundancy Maximum Relevance (mRMR) fitness function.
-    
+
     Combines MutualInformationFitness and RedundancyFitness to select
     features that are:
     1. Highly relevant to the target (high MI with y)
     2. Minimally redundant with each other (low MI between features)
-    
+
     This is the gold standard for feature selection in many applications.
-    
+
     Args:
         task: 'regression' or 'classification'
         alpha: Weight for relevance (default: 0.7)
@@ -427,34 +427,32 @@ class MRMRFitness(FitnessFunction):
         n_neighbors: Number of neighbors for KNN-based MI estimation
         random_state: Random seed for reproducibility
     """
-    
-    def __init__(self, task='regression', alpha=0.7, beta=0.3, 
-                 n_neighbors=3, random_state=None):
+
+    def __init__(
+        self, task="regression", alpha=0.7, beta=0.3, n_neighbors=3, random_state=None
+    ):
         """Initialize mRMR fitness function."""
         if not np.isclose(alpha + beta, 1.0):
             raise ValueError(f"alpha + beta must equal 1.0, got {alpha + beta}")
-        
+
         self.task = task
         self.alpha = alpha  # Weight for relevance
-        self.beta = beta    # Weight for redundancy
+        self.beta = beta  # Weight for redundancy
         self.n_neighbors = n_neighbors
         self.random_state = random_state
-        
+
         # Create sub-fitness functions
         self.mi_fitness = MutualInformationFitness(
-            task=task, 
-            n_neighbors=n_neighbors, 
-            random_state=random_state
+            task=task, n_neighbors=n_neighbors, random_state=random_state
         )
         self.redundancy_fitness = RedundancyFitness(
-            n_neighbors=n_neighbors,
-            random_state=random_state
+            n_neighbors=n_neighbors, random_state=random_state
         )
-    
+
     def __call__(self, individual, model, X_train, y_train, cv=3) -> float:
         """
         Calculate mRMR fitness.
-        
+
         Returns:
             Weighted combination of relevance (MI with target) and
             non-redundancy (inverse MI between features).
@@ -466,11 +464,13 @@ class MRMRFitness(FitnessFunction):
 
         # Calculate relevance (MI with target)
         relevance = self.mi_fitness(individual, model, X_train, y_train, cv)
-        
+
         # Calculate non-redundancy (1 - redundancy between features)
-        non_redundancy = self.redundancy_fitness(individual, model, X_train, y_train, cv)
-        
+        non_redundancy = self.redundancy_fitness(
+            individual, model, X_train, y_train, cv
+        )
+
         # Combine with weights
         mrmr_score = self.alpha * relevance + self.beta * non_redundancy
-        
+
         return float(mrmr_score)

@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import StandardScaler
 
 from .feature_selection.crossover import (
     ArithmeticCrossover,
@@ -29,12 +29,12 @@ from .feature_synthesis.crossover import (
 )
 from .feature_synthesis.feature_synthesis import MultiFeatureGA, SimpleGA
 from .feature_synthesis.mutation import (
+    AdaptiveTreeMutation,
     GrowMutation,
     NodeMutation,
     ParameterMutation,
     RandomMutation,
     SubtreeMutation,
-    AdaptiveTreeMutation,
 )
 
 
@@ -112,7 +112,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         self.X_after_scaling_ = None
         self.X_after_synthesis_ = None
         self.X_after_selection_ = None
-        
+
         # Baseline tracking ← NEW
         self.baseline_score_ = None
         self.after_synthesis_score_ = None
@@ -130,33 +130,33 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
 
         if config_type == "synthesis":
             defaults = {
-                "population_size": 100,
+                "population_size": 20,
                 "max_generations": 50,
-                "crossover_prob": 0.8,
+                "crossover_prob": 0.7,
                 "mutation_prob": 0.1,
                 "tournament_size": 3,
-                "max_depth": 15,
+                "max_depth": 10,
                 "elitism": False,
                 "n_features_to_create": 3,
                 "use_multi_feature": True,
                 "crossover_type": "subtree",
                 "mutation_type": "adaptive",
-                "cv": 5,  # ← INCREASED from 3 to 5
+                "cv": 2,
                 "metric": "mae",
             }
         elif config_type == "selection":
             defaults = {
-                "secondary_objective": "information_gain",
-                "population_size": 100,
+                "secondary_objective": "variance",
+                "population_size": 20,
                 "generations": 50,
-                "crossover_prob": 0.8,
+                "crossover_prob": 0.7,
                 "mutation_prob": 0.1,
-                "objective_weights": [0.5, 0.5],  # ← ADJUSTED for less overfitting
+                "objective_weights": [0.9, 0.1],  # ← ADJUSTED for less overfitting
                 "metric": "mae",
-                "normalize": False, 
+                "normalize": False,
                 "crossover_type": "uniform",
                 "mutation_type": "random_bit_flip",
-                "cv": 5,  # ← INCREASED from 3 to 5
+                "cv": 2,  # ← INCREASED from 3 to 5
             }
         else:
             raise ValueError(f"Unknown config type: {config_type}")
@@ -171,38 +171,42 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
     def _evaluate_features(self, X, y, model, cv=10, stage_name="features"):
         """
         Evaluate feature performance using cross-validation.
-        
+
         Args:
             X: Features to evaluate
             y: Target values
             model: Model to evaluate
             cv: Number of cross-validation folds
             stage_name: Name of the stage for logging
-            
+
         Returns:
             float: Mean cross-validation score (negative MAE/MSE or R2)
         """
         if self.verbose:
             print(f"FeatureEnhancer: Evaluating {stage_name} with {cv}-fold CV...")
-        
+
         # Use negative MAE/MSE for scoring (higher is better)
-        metric = self.selection_config.get('metric', 'mae')
-        if metric == 'mae':
-            scoring = 'neg_mean_absolute_error'
-        elif metric == 'mse':
-            scoring = 'neg_mean_squared_error'
-        elif metric == 'r2':
-            scoring = 'r2'
+        metric = self.selection_config.get("metric", "mae")
+        if metric == "mae":
+            scoring = "neg_mean_absolute_error"
+        elif metric == "mse":
+            scoring = "neg_mean_squared_error"
+        elif metric == "r2":
+            scoring = "r2"
         else:
-            scoring = 'neg_mean_absolute_error'
-        
-        scores = cross_val_score(model, X, y, cv=cv, scoring=scoring, n_jobs=self.n_jobs)
+            scoring = "neg_mean_absolute_error"
+
+        scores = cross_val_score(
+            model, X, y, cv=cv, scoring=scoring, n_jobs=self.n_jobs
+        )
         mean_score = scores.mean()
         std_score = scores.std()
-        
+
         if self.verbose:
-            print(f"FeatureEnhancer: {stage_name} score = {mean_score:.6f} (±{std_score:.6f})")
-        
+            print(
+                f"FeatureEnhancer: {stage_name} score = {mean_score:.6f} (±{std_score:.6f})"
+            )
+
         return mean_score
 
     def _setup_synthesis_engine(self, config: Dict[str, Any]):
@@ -411,12 +415,16 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 print("FeatureEnhancer: Skipping feature scaling")
 
         self.X_after_scaling_ = current_X
-        
+
         # ← NEW: Evaluate baseline performance (original features)
         cv_folds = synthesis_config.get("cv", 10)
         if self.guarantee_improvement:
             self.baseline_score_ = self._evaluate_features(
-                current_X, y, model, cv=cv_folds, stage_name="baseline (original features)"
+                current_X,
+                y,
+                model,
+                cv=cv_folds,
+                stage_name="baseline (original features)",
             )
 
         # Phase 1: Feature Synthesis (if configured)
@@ -433,7 +441,9 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 current_X, y, cv=cv_folds, predictor_model=model
             )
             self.synthesized_features_ = best_features
-            X_synthesized = self.synthesis_engine_.create_multi_enhanced_dataset(current_X)
+            X_synthesized = self.synthesis_engine_.create_multi_enhanced_dataset(
+                current_X
+            )
         else:
             # Single feature synthesis (use cross-validation)
             best_feature = self.synthesis_engine_.evolve(
@@ -441,7 +451,9 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
             )
             self.synthesized_features_ = [best_feature] if best_feature else []
             if best_feature:
-                X_synthesized = self.synthesis_engine_.create_enhanced_dataset(current_X)
+                X_synthesized = self.synthesis_engine_.create_enhanced_dataset(
+                    current_X
+                )
             else:
                 X_synthesized = current_X
 
@@ -458,14 +470,24 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         # ← NEW: Compare synthesis results with baseline
         if self.guarantee_improvement and n_synthesized > 0:
             self.after_synthesis_score_ = self._evaluate_features(
-                X_synthesized, y, model, cv=cv_folds, 
-                stage_name="after synthesis (original + synthesized)"
+                X_synthesized,
+                y,
+                model,
+                cv=cv_folds,
+                stage_name="after synthesis (original + synthesized)",
             )
-            
+
             # Compare: keep synthesis only if it improves or equals baseline
             if self.after_synthesis_score_ >= self.baseline_score_:
-                improvement = ((self.after_synthesis_score_ - self.baseline_score_) / 
-                              abs(self.baseline_score_) * 100) if self.baseline_score_ != 0 else 0
+                improvement = (
+                    (
+                        (self.after_synthesis_score_ - self.baseline_score_)
+                        / abs(self.baseline_score_)
+                        * 100
+                    )
+                    if self.baseline_score_ != 0
+                    else 0
+                )
                 if self.verbose:
                     print(f"\n{'✓' * 60}")
                     print(f"SUCCESS: Synthesis improved performance!")
@@ -477,8 +499,15 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 self.used_baseline_after_synthesis_ = False
                 self.final_stage_ = "synthesis"
             else:
-                degradation = ((self.baseline_score_ - self.after_synthesis_score_) / 
-                              abs(self.baseline_score_) * 100) if self.baseline_score_ != 0 else 0
+                degradation = (
+                    (
+                        (self.baseline_score_ - self.after_synthesis_score_)
+                        / abs(self.baseline_score_)
+                        * 100
+                    )
+                    if self.baseline_score_ != 0
+                    else 0
+                )
                 if self.verbose:
                     print(f"\n{'!' * 60}")
                     print(f"WARNING: Synthesis degraded performance!")
@@ -529,21 +558,41 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
             if self.guarantee_improvement:
                 cv_folds_selection = selection_config.get("cv", 10)
                 self.after_selection_score_ = self._evaluate_features(
-                    X_selected, y, model, cv=cv_folds_selection,
-                    stage_name="after selection (selected features)"
+                    X_selected,
+                    y,
+                    model,
+                    cv=cv_folds_selection,
+                    stage_name="after selection (selected features)",
                 )
-                
+
                 # Compare with the previous best stage
-                previous_score = self.after_synthesis_score_ if self.after_synthesis_score_ is not None else self.baseline_score_
-                previous_stage_name = "synthesis" if self.after_synthesis_score_ is not None else "baseline"
-                
+                previous_score = (
+                    self.after_synthesis_score_
+                    if self.after_synthesis_score_ is not None
+                    else self.baseline_score_
+                )
+                previous_stage_name = (
+                    "synthesis"
+                    if self.after_synthesis_score_ is not None
+                    else "baseline"
+                )
+
                 if self.after_selection_score_ >= previous_score:
-                    improvement = ((self.after_selection_score_ - previous_score) / 
-                                  abs(previous_score) * 100) if previous_score != 0 else 0
+                    improvement = (
+                        (
+                            (self.after_selection_score_ - previous_score)
+                            / abs(previous_score)
+                            * 100
+                        )
+                        if previous_score != 0
+                        else 0
+                    )
                     if self.verbose:
                         print(f"\n{'✓' * 60}")
                         print(f"SUCCESS: Selection improved performance!")
-                        print(f"Previous stage ({previous_stage_name}): {previous_score:.6f}")
+                        print(
+                            f"Previous stage ({previous_stage_name}): {previous_score:.6f}"
+                        )
                         print(f"After selection: {self.after_selection_score_:.6f}")
                         print(f"Improvement: {improvement:.2f}%")
                         print(f"{'✓' * 60}\n")
@@ -551,15 +600,26 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                     self.used_baseline_after_selection_ = False
                     self.final_stage_ = "selection"
                 else:
-                    degradation = ((previous_score - self.after_selection_score_) / 
-                                  abs(previous_score) * 100) if previous_score != 0 else 0
+                    degradation = (
+                        (
+                            (previous_score - self.after_selection_score_)
+                            / abs(previous_score)
+                            * 100
+                        )
+                        if previous_score != 0
+                        else 0
+                    )
                     if self.verbose:
                         print(f"\n{'!' * 60}")
                         print(f"WARNING: Selection degraded performance!")
-                        print(f"Previous stage ({previous_stage_name}): {previous_score:.6f}")
+                        print(
+                            f"Previous stage ({previous_stage_name}): {previous_score:.6f}"
+                        )
                         print(f"After selection: {self.after_selection_score_:.6f}")
                         print(f"Degradation: {degradation:.2f}%")
-                        print(f"REJECTING selection - keeping features from {previous_stage_name} stage")
+                        print(
+                            f"REJECTING selection - keeping features from {previous_stage_name} stage"
+                        )
                         print(f"{'!' * 60}\n")
                     # Keep features from previous stage (either synthesis or baseline)
                     # current_X already has the right data
@@ -596,11 +656,24 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                     print(f"After synthesis score: {self.after_synthesis_score_:.6f}")
                 if self.after_selection_score_ is not None:
                     print(f"After selection score: {self.after_selection_score_:.6f}")
-                final_score = self.after_selection_score_ if self.after_selection_score_ is not None else (
-                    self.after_synthesis_score_ if self.after_synthesis_score_ is not None else self.baseline_score_
+                final_score = (
+                    self.after_selection_score_
+                    if self.after_selection_score_ is not None
+                    else (
+                        self.after_synthesis_score_
+                        if self.after_synthesis_score_ is not None
+                        else self.baseline_score_
+                    )
                 )
-                improvement = ((final_score - self.baseline_score_) / 
-                              abs(self.baseline_score_) * 100) if self.baseline_score_ != 0 else 0
+                improvement = (
+                    (
+                        (final_score - self.baseline_score_)
+                        / abs(self.baseline_score_)
+                        * 100
+                    )
+                    if self.baseline_score_ != 0
+                    else 0
+                )
                 print(f"Final score: {final_score:.6f}")
                 print(f"Total improvement: {improvement:.2f}%")
             print(f"{'=' * 60}\n")
@@ -611,7 +684,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         """Build mapping of final features to their origins."""
         self.feature_origin_map_ = {}
         self.selected_feature_names_ = []
-        
+
         # Determine the features after synthesis (before selection)
         total_features_after_synthesis = self.X_after_synthesis_.shape[1]
         n_original = self.n_features_in_
@@ -678,10 +751,12 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
             current_X = self.scaler_.transform(current_X)
 
         # Apply synthesis transformations (only if synthesis was accepted)
-        if (self.synthesis_performed_ and 
-            self.synthesis_engine_ is not None and 
-            not self.used_baseline_after_synthesis_ and
-            len(self.synthesized_features_) > 0):
+        if (
+            self.synthesis_performed_
+            and self.synthesis_engine_ is not None
+            and not self.used_baseline_after_synthesis_
+            and len(self.synthesized_features_) > 0
+        ):
             if hasattr(self.synthesis_engine_, "best_features"):
                 # Multi-feature case
                 current_X = self.synthesis_engine_.create_multi_enhanced_dataset(
@@ -692,9 +767,11 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
                 current_X = self.synthesis_engine_.create_enhanced_dataset(current_X)
 
         # Apply selection transformations (only if selection was accepted)
-        if (self.selection_performed_ and 
-            self.selection_engine_ is not None and
-            not self.used_baseline_after_selection_):
+        if (
+            self.selection_performed_
+            and self.selection_engine_ is not None
+            and not self.used_baseline_after_selection_
+        ):
             current_X = self.selection_engine_.transform(current_X)
         else:
             # Select the features that were kept
@@ -762,7 +839,9 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         # Add selection info
         if self.selection_performed_:
             selection_info = self.selection_engine_.get_feature_importance()
-            selection_info["selection_accepted"] = not self.used_baseline_after_selection_  # ← NEW
+            selection_info[
+                "selection_accepted"
+            ] = not self.used_baseline_after_selection_  # ← NEW
             info["selection_info"] = selection_info
 
         # Summary statistics
