@@ -19,7 +19,7 @@ The system uses bio-inspired algorithms to discover meaningful feature combinati
 
 ### Feature Synthesis (Genetic Programming)
 - **Tree-based representation** for mathematical expressions
-- **Function set**: Arithmetic (`+`, `-`, `*`, `/`), trigonometric (`sin`, `cos`), logarithmic (`log`), power (`pow`), and logical operators
+- **Function set**: Arithmetic (`+`, `-`, `*`, `/`), trigonometric (`sin`, `cos`, `tanh`), logarithmic (`log`), power (`exp`), and other operators such as absolute value (`abs`) and negation (`-`)
 - **Crossover operators**: Subtree, random, and point crossover
 - **Mutation operators**: Subtree replacement, node mutation, parameter mutation, grow mutation
 - **Configurable depth constraints** to control expression complexity
@@ -76,17 +76,17 @@ Core dependencies:
 ### Basic Usage
 
 ```bash
-# Feature selection only (default behavior)
-python main.py data/California.csv
+# Full feature enhancement with synthesis and selection and Ridge regression (default behavior)
+python main.py --csv-path data/California.csv
 
 # Specify target column by name
-python main.py data/Student_Performance.csv --target "G3"
+python main.py --csv-path data/Student_Performance.csv --target "G3"
 
 # Use different ML model
-python main.py data/Wine.csv --model rf
+python main.py --csv-path data/Wine.csv --model rf
 
-# Enable both synthesis and selection
-python main.py data/Happy.csv \
+# Enable both synthesis and selection with custom parameters
+python main.py --csv-path data/Happy.csv \
     --synthesis-config configs/synthesis_config.json \
     --selection-config configs/selection_config.json
 ```
@@ -95,13 +95,13 @@ python main.py data/Happy.csv \
 
 ```bash
 # High-performance mode with multiprocessing
-python main.py data/Mnist.csv --use-multiprocessing --n-jobs -1
+python main.py --csv-path data/Mnist.csv --use-multiprocessing --n-jobs -1
 
 # Custom test split and scaling
-python main.py data/Diabetes.csv --test-size 0.3 --no-scale
+python main.py --csv-path data/Diabetes.csv --test-size 0.3 --no-scale
 
 # Quiet mode with specific random seed
-python main.py data/Wine.csv --quiet --random-state 123
+python main.py --csv-path data/Wine.csv --quiet --random-state 123
 ```
 
 ## ⚙️ Configuration
@@ -127,6 +127,9 @@ python main.py data/Wine.csv --quiet --random-state 123
 - `"correlation"` - Minimize feature correlation
 - `"variance"` - Maximize feature variance
 - `"information_gain"` - Maximize information content
+- `"mutual_information"` - Maximize mutual information
+- `"redundancy"` - Minimize feature redundancy
+- `"minimun redundancy maximum relevance (mrmr)"` - Minimize redundancy and maximize relevance
 
 ### Feature Synthesis Configuration
 
@@ -143,45 +146,18 @@ python main.py data/Wine.csv --quiet --random-state 123
 ```
 
 **Crossover Types:**
-- `"subtree"` - Standard GP subtree exchange
+- `"subtree"` - Standard GP subtree exchange (default)
 - `"random"` - Creates new random subtrees
 - `"point"` - Exchanges nodes at positions
 
 **Mutation Types:**
+- `"adaptive"` -  Starts with subtree mutation and gradually shifts to grow mutation (default)
 - `"subtree"` - Replaces random subtree
 - `"node"` - Changes individual nodes
 - `"parameter"` - Mutates only terminals
 - `"grow"` - Extends terminals into subtrees
 - `"random"` - Randomly selects strategy
 
-### Usage Scenarios
-
-**Novel Feature Discovery (High Exploration):**
-```json
-{
-  "crossover_type": "random",
-  "mutation_type": "random",
-  "mutation_prob": 0.15
-}
-```
-
-**Fine-Tuning Existing Features:**
-```json
-{
-  "crossover_type": "point",
-  "mutation_type": "parameter",
-  "mutation_prob": 0.05
-}
-```
-
-**High-Dimensional Data:**
-```json
-{
-  "crossover_type": "uniform",
-  "mutation_type": "adaptive",
-  "uniform_swap_prob": 0.3
-}
-```
 
 ## 🔧 Python API
 
@@ -246,19 +222,6 @@ synthesizer = MultiFeatureGA(
 
 new_features = synthesizer.evolve_multiple_features(X, y, n_features=5)
 ```
-
-## 📊 Example Datasets
-
-The `data/` directory includes diverse example datasets:
-
-| Dataset | Type | Features | Samples | Description |
-|---------|------|----------|---------|-------------|
-| `California.csv` | Regression | 8 | 20,640 | California housing prices |
-| `Wine.csv` | Classification | 13 | 178 | Wine quality classification |
-| `Diabetes.csv` | Regression | 10 | 442 | Diabetes progression |
-| `AutoMPG.csv` | Regression | 8 | 398 | Auto fuel efficiency prediction |
-| `Fish.csv` | Classification | 6 | 159 | Fish species classification |
-| `Happy.csv` | Regression | 11 | 156 | World happiness index |
 
 ## 🎛️ Command Line Interface
 
@@ -337,9 +300,9 @@ feature_selection_project/
 │   ├── AutoMPG.csv             # Auto MPG regression dataset
 │   ├── California.csv          # California housing prices
 │   ├── Diabetes.csv            # Diabetes progression dataset
-│   ├── Fish.csv                # Fish market classification
+│   ├── Fish.csv                # Fish weight regression
 │   ├── Happy.csv               # World happiness index
-│   └── Wine.csv                # Wine quality classification
+│   └── Wine.csv                # Wine quality regression
 ├── comparison_results/          # Algorithm comparison outputs
 │   ├── comparison_visualization.png  # Performance comparison plots
 │   ├── latest_comparison_results.csv # Detailed results data
@@ -383,21 +346,6 @@ feature_selection_project/
 2. **Combination Phase**: Merge original and synthesized features
 3. **Selection Phase**: Apply NSGA-II to find optimal feature subset
 4. **Evaluation Phase**: Cross-validate final feature set performance
-
-## 🛠️ Development
-
-### Running Tests
-
-```bash
-# Test operator functionality
-python config_examples/test_operators.py
-
-# Test with default configuration
-python test_default_config.py
-
-# Run advanced examples
-python config_examples/advanced_example.py
-```
 
 ### Performance Optimization
 

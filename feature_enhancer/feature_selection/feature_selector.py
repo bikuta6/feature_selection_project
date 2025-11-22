@@ -44,7 +44,7 @@ class FeatureSelector(BaseEstimator, TransformerMixin):
 
         Args:
             model: ML model to use (must have fit/predict methods)
-            secondary_objective: Secondary objective ('sparsity', 'correlation', 'variance', 'information_gain')
+            secondary_objective: Secondary objective ('sparsity', 'correlation', 'variance', 'information_gain', 'redundancy', 'mutual_information', 'mrmr')
             population_size: NSGA-II population size
             generations: Number of generations
             crossover_prob: Crossover probability
