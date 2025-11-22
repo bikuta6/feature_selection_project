@@ -256,9 +256,9 @@ The `data/` directory includes diverse example datasets:
 | `California.csv` | Regression | 8 | 20,640 | California housing prices |
 | `Wine.csv` | Classification | 13 | 178 | Wine quality classification |
 | `Diabetes.csv` | Regression | 10 | 442 | Diabetes progression |
-| `Student_Performance.csv` | Regression | 32 | 649 | Student academic performance |
+| `AutoMPG.csv` | Regression | 8 | 398 | Auto fuel efficiency prediction |
+| `Fish.csv` | Classification | 6 | 159 | Fish species classification |
 | `Happy.csv` | Regression | 11 | 156 | World happiness index |
-| `Mnist.csv` | Classification | 784 | 1,000 | MNIST digit subset |
 
 ## 🎛️ Command Line Interface
 
@@ -323,10 +323,36 @@ feature_selection_project/
 │   ├── synthesis_config_example.json
 │   ├── selection_config_example.json
 │   └── advanced_example.py      # Python examples
+├── configs/                     # Pre-configured parameter sets
+│   ├── quick/                   # Fast execution configs
+│   │   ├── quick_selection_*.json    # Quick selection configs
+│   │   └── quick_synthesis_*.json    # Quick synthesis configs
+│   ├── medium/                  # Balanced performance configs
+│   │   ├── medium_selection_*.json   # Medium selection configs
+│   │   └── medium_synthesis_*.json   # Medium synthesis configs
+│   └── slow/                    # High-quality, longer-running configs
+│       ├── slow_selection_*.json     # Thorough selection configs
+│       └── slow_synthesis_*.json     # Thorough synthesis configs
 ├── data/                        # Example datasets
-├── configs/                     # User configuration directory
+│   ├── AutoMPG.csv             # Auto MPG regression dataset
+│   ├── California.csv          # California housing prices
+│   ├── Diabetes.csv            # Diabetes progression dataset
+│   ├── Fish.csv                # Fish market classification
+│   ├── Happy.csv               # World happiness index
+│   └── Wine.csv                # Wine quality classification
+├── comparison_results/          # Algorithm comparison outputs
+│   ├── comparison_visualization.png  # Performance comparison plots
+│   ├── latest_comparison_results.csv # Detailed results data
+│   └── summary_report.txt       # Analysis summary
 ├── main.py                      # Command-line interface
-├── pyproject.toml              # Project configuration
+├── comparison_analysis.py       # Algorithm comparison tool
+├── run_comparison.py           # Automated comparison runner
+├── visualize_results.py        # Results visualization utility
+├── test_default_config.py      # Configuration testing
+├── pyproject.toml              # Project configuration and dependencies
+├── uv.lock                     # Dependency lock file
+├── .gitignore                  # Git ignore patterns
+├── .python-version             # Python version specification
 └── README.md                   # This file
 ```
 
