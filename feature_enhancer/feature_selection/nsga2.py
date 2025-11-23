@@ -162,7 +162,7 @@ class NSGA2:
     def environmental_selection(self, combined_population):
         """
         STEP 5: Environmental selection
-        Select the best N solutions using dominance and diversity
+        Select the best
         """
         # Non-dominated sorting
         fronts = self.fast_non_dominated_sort(combined_population)
@@ -285,6 +285,13 @@ class NSGA2:
 
         # STEP 2: Initial evaluation using cross-validation
         self.evaluate_population(model, X_train, y_train, cv)
+
+        # Ensure ranks and crowding distances are computed before selection
+        # so tournament_selection can use them in the first generation.
+        fronts = self.fast_non_dominated_sort(self.population)
+        for front in fronts:
+            if front:
+                self.calculate_crowding_distance(front, self.population)
 
         # Evolution through generations
         progress_bar = tqdm(

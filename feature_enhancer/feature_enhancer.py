@@ -147,7 +147,7 @@ class FeatureEnhancer(BaseEstimator, TransformerMixin):
         elif config_type == "selection":
             defaults = {
                 "secondary_objective": "sparsity",
-                "population_size": 20,
+                "population_size": 50,
                 "generations": 50,
                 "crossover_prob": 0.7,
                 "mutation_prob": 0.1,

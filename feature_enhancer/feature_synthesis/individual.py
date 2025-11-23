@@ -147,7 +147,7 @@ class GPIndividual:
     def _generate_random_tree(self, max_depth: int, current_depth: int = 0) -> Node:
         """Generate a random expression tree."""
         # Terminal probability increases with depth
-        terminal_prob = current_depth / max_depth
+        terminal_prob = current_depth / max_depth if max_depth > 0 else 1.0
         if current_depth == 0:
             terminal_prob = 0.0  # Ensure root is not terminal
 

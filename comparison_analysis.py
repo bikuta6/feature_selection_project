@@ -26,9 +26,7 @@ warnings.filterwarnings("ignore")
 sys.path.append(str(Path(__file__).parent))
 
 from sklearn.ensemble import (
-    GradientBoostingRegressor,
     RandomForestRegressor,
-    VotingRegressor,
 )
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
