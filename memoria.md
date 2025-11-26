@@ -16,6 +16,84 @@ Se han seleccionado algoritmos evolutivos por su capacidad para explorar grandes
 *   **NSGA-II (Non-dominated Sorting Genetic Algorithm II):** Se emplea para la fase de selección de características. La elección de este algoritmo se justifica no solo por su robustez probada en problemas multiobjetivo y experiencia previa positiva con su implementación, sino específicamente por su capacidad para mantener la diversidad en la población. Gracias al uso de la métrica de **distancia de hacinamiento (crowding distance)**, NSGA-II explora eficientemente el frente de Pareto, evitando la convergencia prematura y ofreciendo un abanico de soluciones que equilibran de forma óptima objetivos conflictivos como la precisión del modelo y la parsimonia (número de características).
 
 
+## **Estructura del Sistema**
+
+El sistema `FeatureEnhancer` está diseñado siguiendo una arquitectura modular y extensible que separa claramente las responsabilidades de cada componente. La estructura se organiza jerárquicamente en los siguientes módulos principales:
+
+### **Módulo Principal (`FeatureEnhancer`)**
+
+La clase central `FeatureEnhancer` actúa como la interfaz principal del sistema, implementando el patrón **Transformer** de scikit-learn (`BaseEstimator` y `TransformerMixin`). Esta clase orquesta todo el proceso de mejora de características en dos fases principales:
+
+1. **Fase de Síntesis:** Utiliza Programación Genética para crear nuevas características derivadas de las originales.
+2. **Fase de Selección:** Emplea NSGA-II para seleccionar el subconjunto óptimo de características (originales + sintéticas).
+
+El módulo principal incluye un sistema de **garantía de mejora** que evalúa el rendimiento en cada fase y solo conserva los cambios que efectivamente mejoran el modelo base.
+
+### **Submódulo de Síntesis de Características (`feature_synthesis/`)**
+
+Este módulo implementa la lógica de Programación Genética para la creación de nuevas características:
+
+*   **`individual.py`:** Define las estructuras de datos fundamentales:
+    *   `Node`: Representa nodos individuales del árbol de expresiones (operadores, variables, constantes).
+    *   `GPIndividual`: Encapsula un árbol de expresión completo con métodos para evaluación y manipulación.
+
+*   **`feature_synthesis.py`:** Contiene los algoritmos genéticos principales:
+    *   `SimpleGA`: Algoritmo básico para evolucionar una única característica.
+    *   `MultiFeatureGA`: Versión avanzada que evoluciona múltiples características, permitiendo mayor diversidad y exploración del espacio de soluciones.
+
+*   **`crossover.py`:** Implementa los operadores de recombinación:
+    *   `SubtreeCrossover`: Intercambia subárboles entre individuos padres.
+    *   `PointCrossover` y `RandomCrossover`: Variantes especializadas para diferentes estrategias de recombinación.
+
+*   **`mutation.py`:** Define los operadores de mutación:
+    *   `SubtreeMutation`: Reemplaza subárboles por nuevas estructuras aleatorias.
+    *   `GrowMutation`: Expande nodos terminales en nuevas ramas.
+    *   `NodeMutation` y `ParameterMutation`: Modifican nodos individuales o parámetros específicos.
+    *   `AdaptiveTreeMutation`: Operador híbrido que evoluciona su estrategia durante la ejecución.
+
+### **Submódulo de Selección de Características (`feature_selection/`)**
+
+Este módulo implementa la optimización multiobjetivo para la selección de características:
+
+*   **`individual.py`:** Define la representación binaria de individuos para la selección (vector de bits indicando qué características están activas).
+
+*   **`feature_selector.py`:** Clase principal que encapsula toda la lógica de selección usando NSGA-II.
+
+*   **`nsga2.py`:** Implementación completa del algoritmo NSGA-II, incluyendo:
+    *   Clasificación por frentes no dominados.
+    *   Cálculo de distancia de hacinamiento (crowding distance).
+    *   Selección por torneo y elitismo.
+
+*   **`fitness.py`:** Conjunto extenso de funciones objetivo:
+    *   `R2Fitness`, `ErrorFitness`: Métricas de precisión del modelo.
+    *   `SparsityFitness`: Objetivo de parsimonia (minimizar número de características).
+    *   `CorrelationFitness`, `VarianceFitness`: Métricas de diversidad y calidad de información.
+    *   `InformationGainFitness`: Basado en teoría de la información.
+    *   `RedundancyFitness`: Penaliza características redundantes.
+    *   `MutualInformationFitness`: Evalúa la dependencia estadística entre características y la variable objetivo.
+    *   `MRMRFitness`: Maximiza la relevancia y minimiza la redundancia simultáneamente.
+
+*   **Operadores Evolutivos:**
+    *   **`crossover.py`:** `UniformCrossover`, `SinglePointCrossover`, `TwoPointCrossover`, `ArithmeticCrossover`.
+    *   **`mutation.py`:** `RandomBitFlip`, `UniformMutation`, `BlockMutation`, `AdaptiveMutation`.
+
+### **Módulos de Apoyo**
+
+*   **`dataset_utils.py`:** Proporciona la clase `DatasetLoader` para carga y preprocesamiento automatizado de conjuntos de datos, con soporte para múltiples formatos y transformaciones.
+
+*   **`utils.py`:** Contiene funciones auxiliares para configuración de modelos, validación de parámetros y utilidades generales del sistema.
+
+### **Diseño Orientado a Configuraciones**
+
+El sistema utiliza un enfoque basado en **diccionarios de configuración JSON** que permite:
+
+*   **Personalización completa** de parámetros evolutivos sin modificar código.
+*   **Validación automática** de parámetros con valores de respaldo (fallback).
+*   **Extensibilidad** para añadir nuevos operadores u objetivos mediante herencia.
+
+
+
+
 
 ## **Configuración por Defecto**
 
@@ -91,7 +169,7 @@ El rendimiento del sistema se evaluó de manera exhaustiva utilizando el script 
 
 Los resultados experimentales demuestran la eficacia del sistema `FeatureEnhancer`. A continuación se presenta un resumen detallado de las mejoras obtenidas en términos de Error Absoluto Medio (MAE) para los diferentes conjuntos de datos y modelos evaluados.
 
-### **Tabla Resumen de Mejoras (Selección)**
+### **Tabla Resumen de Mejoras (Resultados destacados)**
 
 La siguiente tabla muestra una comparativa del MAE Baseline vs. Enhanced para los casos más destacados, evidenciando el impacto positivo del sistema:
 
@@ -104,6 +182,47 @@ La siguiente tabla muestra una comparativa del MAE Baseline vs. Enhanced para lo
 | **AutoMPG** | KNN | 2.803 | 2.166 | **+22.72%** | 0.742 | 0.850 |
 | **Diabetes** | Ridge | 46.14 | 39.96 | **+13.40%** | 0.419 | 0.528 |
 | **Wine** | KNN | 0.637 | 0.555 | **+12.84%** | 0.185 | 0.333 |
+
+### **Análisis de Resultados en Datasets Diabetes y California (proporcionados por el profesor)**
+
+Los datasets **California** y **Diabetes** proporcionados por el profesor arrojaron los siguientes resultados:
+
+#### **Tabla de Resultados - Dataset California**
+
+| Modelo | Features Original→Final | MAE Baseline | MAE Enhanced | Mejora (%) | R² Baseline | R² Enhanced | Tiempo (s) |
+|:-------|:----------------------:|:------------:|:------------:|:----------:|:-----------:|:-----------:|:----------:|
+| **Linear** | 8 → 11 | 0.5332 | 0.4652 | **+12.75%** | 0.5758 | 0.6839 | 27.35 |
+| **Ridge** | 8 → 11 | 0.5332 | 0.4652 | **+12.76%** | 0.5759 | 0.6838 | 27.35 |
+| **Random Forest** | 8 → 11 | 0.3276 | 0.3128 | **+4.51%** | 0.8049 | 0.8212 | 27.35 |
+| **KNN** | 8 → 11 | 0.8163 | 0.4125 | **+49.46%** | 0.1554 | 0.7118 | 27.35 |
+| **Decision Tree** | 8 → 11 | 0.4558 | 0.4352 | **+4.51%** | 0.6187 | 0.6334 | 27.35 |
+| **MLP** | 8 → 11 | 0.7096 | 0.3525 | **+50.33%** | 0.4016 | 0.7950 | 27.35 |
+| **SVR** | 8 → 11 | 0.8600 | 0.3693 | **+57.06%** | -0.0165 | 0.7607 | 27.35 |
+
+#### **Tabla de Resultados - Dataset Diabetes**
+
+| Modelo | Features Original→Final | MAE Baseline | MAE Enhanced | Mejora (%) | R² Baseline | R² Enhanced | Tiempo (s) |
+|:-------|:----------------------:|:------------:|:------------:|:----------:|:-----------:|:-----------:|:----------:|
+| **Linear** | 10 → 13 | 42.79 | 39.98 | **+6.58%** | 0.4526 | 0.5272 | 14.57 |
+| **Ridge** | 10 → 13 | 46.14 | 39.96 | **+13.40%** | 0.4192 | 0.5282 | 14.57 |
+| **Random Forest** | 10 → 13 | 44.05 | 43.00 | **+2.38%** | 0.4428 | 0.4792 | 14.57 |
+| **KNN** | 10 → 13 | 45.12 | 45.68 | **-1.23%** | 0.4120 | 0.4018 | 14.57 |
+| **Decision Tree** | 10 → 13 | 54.53 | 57.52 | **-5.48%** | 0.0607 | -0.0014 | 14.57 |
+| **MLP** | 10 → 13 | 44.05 | 41.98 | **+4.69%** | 0.4379 | 0.4802 | 14.57 |
+| **SVR** | 10 → 13 | 56.02 | 56.85 | **-1.48%** | 0.1821 | 0.1591 | 14.57 |
+
+#### **Observaciones Específicas para estos Datasets**
+
+**Dataset California (Viviendas):**
+- **Mejoras excepcionales** en modelos no lineales: SVR (+57.06%), MLP (+50.33%), y KNN (+49.46%).
+- El sistema añadió **3 características sintéticas** (8→11), sugiriendo que las interacciones no lineales descubiertas compensan el ligero aumento en complejidad.
+- Incluso modelos ya robustos como Random Forest mejoraron marginalmente (+4.51%).
+
+**Dataset Diabetes:**
+- **Mejoras más modestas** pero consistentes en modelos lineales: Ridge (+13.40%) y Linear (+6.58%).
+- El sistema añadió **3 características sintéticas** (10→13), indicando patrones adicionales útiles.
+- **Algunos empeoramientos** en modelos complejos (KNN, Decision Tree, SVR), sugiriendo que este dataset ya tiene suficiente estructura para estos algoritmos y la síntesis no es beneficiosa.
+- El mecanismo de `guarantee_improvement` debería haber evitado estos empeoramientos, pero debido a que la mejora se evalua mediante un modelo de regresión Ridge, mejoras en otros modelos no siempre se garantizan.
 
 ### **Análisis Detallado y Limitaciones**
 

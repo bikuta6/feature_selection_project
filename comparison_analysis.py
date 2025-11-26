@@ -420,13 +420,10 @@ def main():
     output_dir.mkdir(exist_ok=True)
 
     # Define datasets to process
+    data = os.listdir(data_dir)
     datasets = [
-        ("California.csv", "California", -1),
-        ("Diabetes.csv", "Diabetes", -1),
-        ("AutoMPG.csv", "AutoMPG", -1),
-        ("Fish.csv", "Fish", -1),
-        ("Happy.csv", "Happy", -1),
-        ("Wine.csv", "Wine", -1),
+        (dataset_name, dataset_name.rsplit(".", 1)[0], -1)
+        for dataset_name in data
     ]
 
     # Process all datasets
