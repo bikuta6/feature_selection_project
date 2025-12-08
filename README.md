@@ -77,16 +77,16 @@ Core dependencies:
 
 ```bash
 # Full feature enhancement with synthesis and selection and Ridge regression (default behavior)
-python main.py --csv-path data/California.csv
+uv run main.py --csv-path data/California.csv
 
 # Specify target column by name
-python main.py --csv-path data/Student_Performance.csv --target "G3"
+uv run main.py --csv-path data/Happy.csv --target "Happiness_Index"
 
 # Use different ML model
-python main.py --csv-path data/Wine.csv --model rf
+uv run main.py --csv-path data/Wine.csv --model rf
 
 # Enable both synthesis and selection with custom parameters
-python main.py --csv-path data/Happy.csv \
+uv run main.py --csv-path data/Happy.csv \
     --synthesis-config configs/synthesis_config.json \
     --selection-config configs/selection_config.json
 ```
@@ -95,13 +95,13 @@ python main.py --csv-path data/Happy.csv \
 
 ```bash
 # High-performance mode with multiprocessing
-python main.py --csv-path data/Mnist.csv --use-multiprocessing --n-jobs -1
+uv run main.py --csv-path data/Mnist.csv --use-multiprocessing --n-jobs -1
 
 # Custom test split and scaling
-python main.py --csv-path data/Diabetes.csv --test-size 0.3 --no-scale
+uv run main.py --csv-path data/Diabetes.csv --test-size 0.3 --no-scale
 
 # Quiet mode with specific random seed
-python main.py --csv-path data/Wine.csv --quiet --random-state 123
+uv run main.py --csv-path data/Wine.csv --quiet --random-state 123
 ```
 
 ## ⚙️ Configuration
@@ -226,7 +226,7 @@ new_features = synthesizer.evolve_multiple_features(X, y, n_features=5)
 ## 🎛️ Command Line Interface
 
 ```bash
-python main.py dataset.csv [OPTIONS]
+uv run main.py dataset.csv [OPTIONS]
 
 Positional Arguments:
   csv_path                  Path to CSV dataset
@@ -281,11 +281,8 @@ feature_selection_project/
 │       ├── crossover.py         # GP crossover operators
 │       └── mutation.py          # GP mutation operators
 ├── config_examples/              # Configuration examples and guides
-│   ├── README.md                # Configuration documentation
-│   ├── OPERATORS_GUIDE.md       # Detailed operator descriptions
 │   ├── synthesis_config_example.json
-│   ├── selection_config_example.json
-│   └── advanced_example.py      # Python examples
+│   └── selection_config_example.json
 ├── configs/                     # Pre-configured parameter sets
 │   ├── quick/                   # Fast execution configs
 │   │   ├── quick_selection_*.json    # Quick selection configs
@@ -311,7 +308,6 @@ feature_selection_project/
 ├── comparison_analysis.py       # Algorithm comparison tool
 ├── run_comparison.py           # Automated comparison runner
 ├── visualize_results.py        # Results visualization utility
-├── test_default_config.py      # Configuration testing
 ├── pyproject.toml              # Project configuration and dependencies
 ├── uv.lock                     # Dependency lock file
 ├── .gitignore                  # Git ignore patterns
@@ -347,9 +343,4 @@ feature_selection_project/
 3. **Selection Phase**: Apply NSGA-II to find optimal feature subset
 4. **Evaluation Phase**: Cross-validate final feature set performance
 
-### Performance Optimization
 
-- Use `--use-multiprocessing` for large datasets
-- Reduce `population_size` and `generations` for faster prototyping
-- Enable `--no-scale` if features are already normalized
-- Use `"sparsity"` secondary objective for aggressive feature reduction
