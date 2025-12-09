@@ -319,7 +319,7 @@ def main():
     )
 
     # Dataset arguments
-    parser.add_argument("--csv-path", help="Path to CSV dataset")
+    parser.add_argument("--csv-path", help="Path to CSV dataset", required=True)
     parser.add_argument(
         "--target",
         "-t",

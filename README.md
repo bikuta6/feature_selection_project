@@ -226,16 +226,16 @@ new_features = synthesizer.evolve_multiple_features(X, y, n_features=5)
 ## 🎛️ Command Line Interface
 
 ```bash
-uv run main.py dataset.csv [OPTIONS]
+uv run main.py  --csv-path dataset.csv [OPTIONS]
 
 Positional Arguments:
-  csv_path                  Path to CSV dataset
+  --csv-path                  Path to CSV dataset
 
 Target Configuration:
-  -t, --target TARGET       Target column name or index (default: -1)
+  --target TARGET       Target column name or index (default: -1)
 
 Model Selection:
-  -m, --model MODEL         Model choice: auto, linear, logistic, rf, ridge,
+  --model MODEL         Model choice: auto, linear, logistic, rf, ridge,
                            lasso, knn, svm, dt, gb, mlp (default: ridge)
 
 Configuration Files:
@@ -254,7 +254,7 @@ Reproducibility:
   --random-state INT       Random seed (default: 42)
 
 Output Control:
-  -q, --quiet              Reduce output verbosity
+  --quiet              Reduce output verbosity
 ```
 
 ## 📁 Project Structure
